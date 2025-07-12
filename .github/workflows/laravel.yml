@@ -23,7 +23,7 @@ jobs:
     - name: Generate key
       run: |
         cd backend
-        mkdir bootstrap/cache
+        mkdir -p bootstrap/cache
         php artisan key:generate
     - name: Directory Permissions
       run: cd backend && chmod -R 777 storage bootstrap/cache
@@ -38,4 +38,6 @@ jobs:
         DB_DATABASE: database/database.sqlite
       run: |
         cd backend
+        mkdir -p bootstrap/cache
+        chmod -R 777 bootstrap/cache
         php artisan test
