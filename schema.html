@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <svg width="700" height="400" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .table { fill: #f9f9f9; stroke: #333; stroke-width: 1.5; }
+    .header { fill: #333; font-weight: bold; font-size: 15px; }
+    .field { fill: #222; font-size: 13px; }
+    .arrow { stroke: #333; stroke-width: 1.5; marker-end: url(#arrowhead);}
+  </style>
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7"
+        refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+    </marker>
+  </defs>
+  <!-- User Table -->
+  <rect x="50" y="50" width="160" height="120" class="table"/>
+  <text x="60" y="70" class="header" fill="white">User</text>
+  <text x="60" y="95" class="field">id: UUID</text>
+  <text x="60" y="115" class="field">name: String</text>
+  <text x="60" y="135" class="field">email: String</text>
+  <text x="60" y="155" class="field">role: String</text>
+
+  <!-- Project Table -->
+  <rect x="270" y="50" width="160" height="140" class="table"/>
+  <text x="280" y="70" class="header" fill="white">Project</text>
+  <text x="280" y="95" class="field">id: UUID</text>
+  <text x="280" y="115" class="field">name: String</text>
+  <text x="280" y="135" class="field">description: String</text>
+  <text x="280" y="155" class="field">client: String</text>
+  <text x="280" y="175" class="field">status: String</text>
+
+  <!-- Category Table -->
+  <rect x="500" y="50" width="160" height="100" class="table"/>
+  <text x="510" y="70" class="header" fill="white">Category</text>
+  <text x="510" y="95" class="field">id: UUID</text>
+  <text x="510" y="115" class="field">name: String</text>
+  <text x="510" y="135" class="field">description: String</text>
+  
+  <!-- TimeRegistration Table -->
+  <rect x="180" y="250" width="340" height="130" class="table"/>
+  <text x="190" y="270" class="header" fill="white">TimeRegistration</text>
+  <text x="190" y="295" class="field">id: UUID</text>
+  <text x="190" y="315" class="field">user_id: UUID</text>
+  <text x="190" y="335" class="field">project_id: UUID</text>
+  <text x="190" y="355" class="field">category_id: UUID</text>
+  <text x="360" y="295" class="field">start_time: DateTime</text>
+  <text x="360" y="315" class="field">end_time: DateTime</text>
+  <text x="360" y="335" class="field">description: String</text>
+
+  <!-- Relationships (arrows) -->
+  <!-- User -> TimeRegistration -->
+  <line x1="130" y1="170" x2="230" y2="250" class="arrow"/>
+  <!-- Project -> TimeRegistration -->
+  <line x1="350" y1="190" x2="350" y2="250" class="arrow"/>
+  <!-- Category -> TimeRegistration -->
+  <line x1="580" y1="150" x2="470" y2="250" class="arrow"/>
+</svg>
+</body>
+</html>

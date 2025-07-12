@@ -1,0 +1,57 @@
+# Root .gitignore
+
+# Node modules (for React frontend)
+frontend/node_modules/
+
+# Build output (React)
+frontend/build/
+frontend/dist/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files (adjust for your IDE)
+.vscode/
+.idea/
+*.swp
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Laravel vendor directory
+backend/vendor/
+
+# Laravel environment files
+backend/.env
+backend/.env.*
+backend/storage/*.key
+
+# Laravel cache, log, and compiled files
+backend/storage/logs/
+backend/storage/framework/
+backend/storage/app/public/
+backend/storage/debugbar/
+backend/bootstrap/cache/
+
+# Laravel test coverage
+backend/coverage/
+
+# PHPStorm
+backend/.idea/
+
+# Misc
+backend/node_modules/
+backend/public/storage
+backend/public/hot
+backend/public/mix-manifest.json
+backend/public/css/
+backend/public/js/
