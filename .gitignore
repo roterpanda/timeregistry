@@ -32,7 +32,6 @@ backend/vendor/
 
 # Laravel environment files
 backend/.env
-backend/.env.*
 backend/storage/*.key
 
 # Laravel cache, log, and compiled files
