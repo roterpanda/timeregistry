@@ -23,10 +23,10 @@ jobs:
     - name: Generate key
       run: |
         cd backend
-        mkdir -p bootstrap/cache storage
+        mkdir -p bootstrap/cache storage storage/framework/views
         php artisan key:generate
     - name: Directory Permissions
-      run: cd backend && chmod -R 777 storage bootstrap/cache
+      run: cd backend && chmod -R 777 storage bootstrap/cache storage/framework/views
     - name: Create Database
       run: |
         cd backend
