@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\API\BaseController;
 use App\Models\User;
+use App\Services\RegisterUserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Validator;
 class RegisterController extends BaseController
 {
 
-    public function register(Request $request): JsonResponse
+    public function register(Request $request, RegisterUserService $registerUserService): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required',
@@ -27,8 +28,7 @@ class RegisterController extends BaseController
         try {
             $input = $request->all();
             $input['password'] = bcrypt($input['password']);
-            /** @var User $user */
-            $user = User::create($input);
+            $user = $registerUserService->register($input);
 
             $data['token'] =  $user->createToken('TimeApp')->plainTextToken;
             $data['name'] =  $user->name;
