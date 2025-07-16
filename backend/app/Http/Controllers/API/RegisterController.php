@@ -14,6 +14,8 @@ class RegisterController extends BaseController
 
     public function register(Request $request, RegisterUserService $registerUserService): JsonResponse
     {
+        $this->verifyRequest($request);
+
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email|unique:users,email',

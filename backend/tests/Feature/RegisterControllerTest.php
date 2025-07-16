@@ -19,11 +19,16 @@ class RegisterControllerTest extends TestCase
      */
     public function test_successful_registration(): void
     {
+        $timestamp = now()->timestamp;
+
         $response = $this->postJson('/api/register', [
             'name' => 'Test User',
             'email' => 'test@test.com',
             'password' => 'password123',
             'password_c' => 'password123',
+        ], [
+            'X-Request-Timestamp' => (string) $timestamp,
+            'X-Request-Signature' => hash_hmac('sha256', "POST|api/register|$timestamp", env('FRONTEND_WEB_SECRET')),
         ]);
         $response->assertStatus(201);
         $this->assertDatabaseHas('users', [
