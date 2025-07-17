@@ -16,7 +16,7 @@ class BaseController extends Controller
         $signature = $request->header('X-Request-Signature');
         $secret = env('FRONTEND_WEB_SECRET');
 
-        $payload = $request->method() . '|' . $request->path() . '|' . $timestamp;
+        $payload = $request->method() . $request->path() . $timestamp;
 
         $expected_signature = hash_hmac('sha256', $payload, $secret);
 
