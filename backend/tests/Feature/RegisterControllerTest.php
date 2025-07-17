@@ -2,11 +2,7 @@
 
 namespace Feature;
 
-// use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Testing\TestResponse;
 use Mockery;
 use Tests\TestCase;
@@ -14,7 +10,6 @@ use Tests\TestCase;
 class RegisterControllerTest extends TestCase
 {
     use RefreshDatabase;
-
 
     private function signedRequest(string $method, string $path, array $body = []): TestResponse {
         $timestamp = now()->timestamp;
