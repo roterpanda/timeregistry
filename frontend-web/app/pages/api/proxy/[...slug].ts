@@ -24,13 +24,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             params: req.query,
             });
         res.status(response.status).json(response.data);
-    } catch (err: any) {
-        res
-            .status(err.response?.status || 500)
-            .json({
-                error: {
-                    message: err.message || 'An error occurred while processing your request.',
-                },
-            });
+    } catch (err: unknown) {
+        if (axios.isAxiosError(err)) {
+            res
+                .status(err.response?.status || 500)
+                .json({
+                    error: {
+                        message: err.message || 'An error occurred while processing your request.',
+                    },
+                });
+        }
     }
 }
