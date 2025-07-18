@@ -4,10 +4,10 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class BaseController extends Controller
 {
+
     public function sendResponse($result, $message, $code = 200): JsonResponse
     {
         $response = [
