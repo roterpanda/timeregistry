@@ -22,16 +22,15 @@ class RegisterController extends BaseController
         ]);
 
         if($validator->fails()){
-            return $this->sendError('Validation Error.', $validator->errors(), 422);
+            return $this->sendError('Validation failed. Please check your details.', code: 422);
         }
 
         try {
             $input = $request->all();
-            $input['password'] = bcrypt($input['password']);
             $user = $registerUserService->register($input);
 
-            $data['token'] =  $user->createToken('TimeApp')->plainTextToken;
-            $data['name'] =  $user->name;
+            $data['token'] = $user->createToken('TimeApp')->plainTextToken;
+            $data['name'] = $user->name;
 
             return $this->sendResponse($data, 'User registered successfully.', 201);
         }
