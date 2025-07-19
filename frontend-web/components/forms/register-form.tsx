@@ -35,7 +35,7 @@ export function RegisterForm() {
         axios.post("/api/proxy/register", { name: values.username,
             email: values.email,
             password: values.password,
-            passwordConfirm: values.passwordConfirm }).then(() => {
+            password_c: values.passwordConfirm }).then(() => {
             console.log("Registration successful");
         });
     }

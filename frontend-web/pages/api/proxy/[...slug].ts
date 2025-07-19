@@ -2,10 +2,18 @@ import {NextApiRequest, NextApiResponse} from 'next';
 import {signRequest} from "@/lib/signRequest";
 import axios from "axios";
 
+const allowedEndpoints: string[] = [
+    'register'
+];
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const slugParts = req.query.slug;
-    const endpoint = Array.isArray(slugParts) ? slugParts.join('/') : slugParts || '';
+    const rawEndpoint = Array.isArray(slugParts) ? slugParts.join('/') : slugParts || '';
+    const endpoint = allowedEndpoints.includes(rawEndpoint) ? rawEndpoint : null;
+    if (!endpoint) {
+        res.status(400).json({ error: {message: 'Invalid endpoint'}});
+        return;
+    }
     const timestamp = Date.now().toString();
     const method = req.method || 'GET';
     const signature = signRequest(method, 'api/' + endpoint, timestamp);
