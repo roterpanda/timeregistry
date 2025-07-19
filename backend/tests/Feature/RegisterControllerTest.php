@@ -2,7 +2,9 @@
 
 namespace Feature;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Testing\TestResponse;
 use Mockery;
 use Tests\TestCase;
@@ -44,6 +46,27 @@ class RegisterControllerTest extends TestCase
             'name' => 'Test User',
             'email' => 'test@test.com',
         ]);
+        $user = User::where('email', 'test@test.com')->first();
+        $this->assertNotEquals('password123', $user->password);
+        $this->assertTrue(Hash::check('password123', $user->password));
+    }
+
+    /**
+     * Test php and html tags are stripped from username.
+     */
+    public function test_strip_tags_username(): void
+    {
+        $response = $this->signedRequest('POST', 'api/register', [
+            'name' => "<?php echo hello ?><script></script>Hello",
+            'email' => 'test@test.com',
+            'password' => 'password123',
+            'password_c' => 'password123',
+        ]);
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('users', [
+            'name' => 'Hello',
+            'email' => 'test@test.com',
+        ]);
     }
 
     /**
@@ -83,16 +106,10 @@ class RegisterControllerTest extends TestCase
         $response->assertJsonStructure([
             'success',
             'message',
-            'data' => [
-                'password_c',
-            ],
         ]);
         $response->assertJsonFragment([
             'success' => false,
-            'message' => 'Validation Error.',
-            'data' => [
-                'password_c' => ['The password c field must match password.'],
-            ],
+            'message' => 'Validation failed. Please check your details.',
         ]);
     }
 
