@@ -6,8 +6,6 @@ export function signRequest(method: string, url: string, timestamp: string): str
         throw new Error('Secret is not defined');
     }
 
-    console.log(method, url, timestamp);
-
     const data = `${method}${url}${timestamp}`;
     const hmac = crypto.createHmac('sha256', secret);
     hmac.update(data);
