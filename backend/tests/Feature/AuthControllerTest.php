@@ -9,7 +9,7 @@ use Illuminate\Testing\TestResponse;
 use Mockery;
 use Tests\TestCase;
 
-class RegisterControllerTest extends TestCase
+class AuthControllerTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -35,12 +35,7 @@ class RegisterControllerTest extends TestCase
      */
     public function test_successful_registration(): void
     {
-        $response = $this->signedRequest('POST', 'api/register', [
-            'name' => 'Test User',
-            'email' => 'test@test.com',
-            'password' => 'password123',
-            'password_c' => 'password123',
-        ]);
+        $response = $this->registerTestUser('Test User', 'test@test.com', 'password123');
         $response->assertStatus(201);
         $this->assertDatabaseHas('users', [
             'name' => 'Test User',
@@ -56,12 +51,7 @@ class RegisterControllerTest extends TestCase
      */
     public function test_strip_tags_username(): void
     {
-        $response = $this->signedRequest('POST', 'api/register', [
-            'name' => "<?php echo hello ?><script></script>Hello",
-            'email' => 'test@test.com',
-            'password' => 'password123',
-            'password_c' => 'password123',
-        ]);
+        $response = $this->registerTestUser("<?php echo hello ?><script></script>Hello", 'test@test.com', 'password123');
         $response->assertStatus(201);
         $this->assertDatabaseHas('users', [
             'name' => 'Hello',
@@ -74,19 +64,9 @@ class RegisterControllerTest extends TestCase
      */
     public function test_registration_with_existing_email(): void
     {
-        $response = $this->signedRequest('POST', 'api/register', [
-            'name' => 'Existing User',
-            'email' => 'existing@exists.com',
-            'password' => 'password123',
-            'password_c' => 'password123',
-        ]);
+        $response = $this->registerTestUser('Existing User', 'existing@exists.com', 'password123');
         $response->assertStatus(201);
-        $response = $this->signedRequest('POST', 'api/register', [
-            'name' => 'Another User',
-            'email' => 'existing@exists.com',
-            'password' => 'password123',
-            'password_c' => 'password123',
-        ]);
+        $response = $this->registerTestUser('Another User', 'existing@exists.com', 'password123');
         $response->assertStatus(422);
     }
 
@@ -123,13 +103,32 @@ class RegisterControllerTest extends TestCase
             ->once()
             ->andThrow(new \Exception('Database error'));
         $this->app->instance('App\Services\RegisterUserService', $mockUserService);
-        $response = $this->signedRequest('POST', 'api/register', [
-            'name' => 'Test User',
-            'email' => 'test@test.com',
-            'password' => 'password123',
-            'password_c' => 'password123',
-        ]);
+        $response = $this->registerTestUser('Test User', 'test@test.com', 'password123');
         $response->assertStatus(500);
+    }
+
+    /**
+     * Tests succesful login.
+     */
+    public function test_login_with_existing_email(): void
+    {
+        $this->registerTestUser('Test User', 'test@test.com', 'password123');
+        $response = $this->signedRequest('POST', 'api/login', ['email' => 'test@test.com', 'password' => 'password123']);
+        $response->assertStatus(200);
+
+    }
+
+    /**
+     * @return void
+     */
+    public function registerTestUser(string $username, string $email, string $password): TestResponse
+    {
+        return $this->signedRequest('POST', 'api/register', [
+            'name' => $username,
+            'email' => $email,
+            'password' => $password,
+            'password_c' => $password,
+        ]);
     }
 
 }

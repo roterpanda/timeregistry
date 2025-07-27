@@ -5,17 +5,18 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\API\BaseController;
 use App\Models\User;
 use App\Services\RegisterUserService;
+use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class RegisterController extends BaseController
+class AuthController extends BaseController
 {
 
     public function register(Request $request, RegisterUserService $registerUserService): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
+            'name' => 'required|unique:users,name',
             'email' => 'required|email|unique:users,email',
             'password' => 'required',
             'password_c' => 'required|same:password',
@@ -28,8 +29,6 @@ class RegisterController extends BaseController
         try {
             $input = $request->all();
             $user = $registerUserService->register($input);
-
-            $data['token'] = $user->createToken('TimeApp')->plainTextToken;
             $data['name'] = $user->name;
 
             return $this->sendResponse($data, 'User registered successfully.', 201);
@@ -43,20 +42,39 @@ class RegisterController extends BaseController
 
     public function login(Request $request): JsonResponse
     {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        if($validator->fails()){
+            return $this->sendError('Validation failed. Please check your details.', code: 422);
+        }
+
         $credentials = $request->only('email', 'password');
 
-        if (auth()->attempt($credentials)) {
-            /** @var User $user */
-            $user = auth()->user();
+        $user = User::where('email', $credentials['email'])->first();
+
+        if (!$user) {
+            return $this->sendResponse(result: 'Unauthorized', message: [], code:401);
+        }
+
+        if (password_verify($credentials['password'], $user->password)) {
             $data = [
-                'token' => $user->createToken('TimeApp')->plainTextToken,
+                'token' => $user->createToken('TimeAppLogin', ['access_protected'], now()->addHours(4))->plainTextToken,
                 'name' => $user->name,
             ];
             return $this->sendResponse($data, 'User logged in successfully.');
         }
         else {
-            return $this->sendError('Unauthorised', ['error' => 'Invalid credentials'], 401);
+            return $this->sendError('Unauthorized', [], 401);
         }
+    }
+
+    public function logout(Request $request): JsonResponse
+    {
+        $request->user()->currentAccessToken()->delete();
+        return $this->sendResponse([], 'User logged out successfully.');
     }
 
 }
