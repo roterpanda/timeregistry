@@ -3,7 +3,8 @@ import {signRequest} from "@/lib/signRequest";
 import axios from "axios";
 
 const allowedEndpoints: string[] = [
-  "register"
+  "register",
+  "login",
 ];
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
