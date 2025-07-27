@@ -13,16 +13,9 @@ import {Alert, AlertTitle} from "@/components/ui/alert";
 const formSchema = z.object({
   email: z.email("Must be an email"),
   password: z.string().min(10, "Password must be at least 10 characters long."),
-  passwordConfirm: z.string(),
-  username: z.string()
-    .min(3, "Username must be at least 3 characters long")
-    .regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores."),
-}).refine((data) => data.password === data.passwordConfirm, {
-  message: "Passwords do not match",
-  path: ["passwordConfirm"],
 });
 
-export function RegisterForm() {
+export function LoginForm() {
   const [alert, setAlert] = useState<string>("");
   const [success, setSuccess] = useState<boolean>(false);
 
@@ -31,27 +24,23 @@ export function RegisterForm() {
     defaultValues: {
       email: "",
       password: "",
-      passwordConfirm: "",
-      username: "",
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    axios.post("/api/proxy/register", {
-      name: values.username,
+    axios.post("/api/proxy/login", {
       email: values.email,
       password: values.password,
-      password_c: values.passwordConfirm
     })
       .then(() => {
-        setAlert("User registered successfully");
+        setAlert("Login successful");
         setSuccess(true);
         form.reset();
       })
       .catch((err: AxiosError) => {
-        if (err.status === 422) {
+        if (err.status === 401) {
           setSuccess(false);
-          setAlert("Something went wrong. Try again.")
+          setAlert("Not authorized. Try again.")
         }
       });
   }
@@ -66,21 +55,6 @@ export function RegisterForm() {
           setAlert("");
           setSuccess(false);
         })} className="space-y-6">
-          <FormField
-            control={form.control}
-            name="username"
-            render={({field}) => (
-              <FormItem>
-                <FormLabel>Username</FormLabel>
-                <FormControl>
-                  <Input placeholder="Username" {...field} />
-                </FormControl>
-                <FormDescription>
-                  Your username.
-                </FormDescription>
-                <FormMessage/>
-              </FormItem>
-            )}/>
           <FormField
             control={form.control}
             name="email"
@@ -107,21 +81,6 @@ export function RegisterForm() {
                 </FormControl>
                 <FormDescription>
                   Your password.
-                </FormDescription>
-                <FormMessage/>
-              </FormItem>
-            )}/>
-          <FormField
-            control={form.control}
-            name="passwordConfirm"
-            render={({field}) => (
-              <FormItem>
-                <FormLabel>Confirm Password</FormLabel>
-                <FormControl>
-                  <Input placeholder="Confirm Password" {...field} type="password"/>
-                </FormControl>
-                <FormDescription>
-                  Confirm the password
                 </FormDescription>
                 <FormMessage/>
               </FormItem>
