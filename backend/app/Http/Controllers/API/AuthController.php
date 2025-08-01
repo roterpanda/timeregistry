@@ -8,7 +8,9 @@ use App\Services\RegisterUserService;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\Cookie;
 
 class AuthController extends BaseController
 {
@@ -56,15 +58,16 @@ class AuthController extends BaseController
         $user = User::where('email', $credentials['email'])->first();
 
         if (!$user) {
-            return $this->sendResponse(result: 'Unauthorized', message: [], code:401);
+            return $this->sendError('Unauthorized', [], 401);
         }
 
         if (password_verify($credentials['password'], $user->password)) {
+            $expiry = now()->addHours(4);
             $data = [
-                'token' => $user->createToken('TimeAppLogin', ['access_protected'], now()->addHours(4))->plainTextToken,
+                'token' => $user->createToken('TimeAppLogin', ['access_protected'], $expiry)->plainTextToken,
                 'name' => $user->name,
             ];
-            return $this->sendResponse($data, 'User logged in successfully.');
+            return response()->json($data)->withCookie(cookie('token', $data['token'], $expiry->diffInMinutes(), null, null, false, true, false, 'Lax'));
         }
         else {
             return $this->sendError('Unauthorized', [], 401);
