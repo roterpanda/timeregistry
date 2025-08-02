@@ -1,6 +1,7 @@
 "use client";
 
 import React, {createContext, useContext, useEffect, useState} from "react";
+import axios from "axios";
 
 type User = {
   name: string;
@@ -11,23 +12,38 @@ type AuthContextType = {
   login: (userData: { name: string }) => void;
   logout: () => void;
   isAuthenticated: boolean;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
   const [user, setUser] = useState<User>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const storedUser: string | null = sessionStorage.getItem("user");
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (e) {
-        console.error("Failed to parse user from sessionStorage:", e);
-        setUser(null);
-      }
+    const stored = sessionStorage.getItem("user");
+    if (stored) {
+      setUser(JSON.parse(stored));
     }
+    axios.get(`${process.env.NEXT_PUBLIC_API_URL}/sanctum/csrf-cookie`, {withCredentials: true})
+      .then(() => {
+        axios.get("/api/proxy/v1/user", {withCredentials: true, withXSRFToken: true})
+          .then((res) => {
+            if (res.data) {
+              setUser({name: res.data});
+              sessionStorage.setItem("user", JSON.stringify({name: res.data.name}));
+            } else {
+              setUser(null);
+              sessionStorage.removeItem("user");
+            }
+          })
+          .catch(() => {
+            setUser(null);
+            sessionStorage.removeItem("user");
+          })
+          .finally(() => setLoading(false));
+      })
   }, []);
 
   const login = (userData: { name: string }) => {
@@ -45,7 +61,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
       user,
       login,
       logout,
-      isAuthenticated: !!user
+      isAuthenticated: !!user,
+      loading
     }}>
       {children}
     </AuthContext.Provider>
