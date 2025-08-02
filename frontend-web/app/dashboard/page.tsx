@@ -3,7 +3,6 @@
 import {useEffect, useState} from "react";
 import axios, {AxiosResponse} from "axios";
 import {useRouter} from "next/navigation";
-import {Button} from "@/components/ui/button";
 
 
 export default function Dashboard() {
@@ -15,10 +14,10 @@ export default function Dashboard() {
       .then((res: AxiosResponse) => {
         setData(res.data);
       })
-      .catch ((reason: any) => {
+      .catch (() => {
         router.push("/login");
       });
-  }, []);
+  }, [router]);
 
 
   return (
@@ -27,7 +26,7 @@ export default function Dashboard() {
         Dashboard
       </h1>
       <p>
-        {data ? data.created_at : "Error"}
+        {data ? data : "Error"}
       </p>
     </div>
 

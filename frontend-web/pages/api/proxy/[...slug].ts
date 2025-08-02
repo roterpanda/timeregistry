@@ -3,8 +3,6 @@ import {signRequest} from "@/lib/signRequest";
 import axios from "axios";
 
 const allowedEndpoints: string[] = [
-  "register",
-  "login",
   "v1/protected",
 ];
 

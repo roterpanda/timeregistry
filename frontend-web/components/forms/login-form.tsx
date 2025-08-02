@@ -31,7 +31,7 @@ export function LoginForm() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     axios.get(`${process.env.NEXT_PUBLIC_API_URL}/sanctum/csrf-cookie`, { withCredentials: true })
-      .then(response => {
+      .then(() => {
         axios.post(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
           email: values.email,
           password: values.password,

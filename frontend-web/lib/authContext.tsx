@@ -1,6 +1,6 @@
 "use client";
 
-import React, {createContext, useContext, useState} from "react";
+import React, {createContext, useContext, useEffect, useState} from "react";
 
 type User = {
   name: string;
@@ -18,12 +18,21 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
   const [user, setUser] = useState<User>(null);
 
+  useEffect(() => {
+    const storedUser: string | null = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
   const login = (userData: { name: string }) => {
     setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
   }
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem("user");
   }
 
   return (

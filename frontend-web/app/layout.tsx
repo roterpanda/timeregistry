@@ -1,13 +1,7 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import {AuthProvider} from "@/lib/authContext";
 import MenuBar from "@/components/organisms/menubar";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "TimeRegistry",
@@ -22,7 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} antialiased bg-background`}
+        className="antialiased bg-background"
       >
        <AuthProvider>
           <div className="min-h-screen bg-background flex flex-col">
