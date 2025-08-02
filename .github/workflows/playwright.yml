@@ -42,15 +42,14 @@ jobs:
     - name: Run migration
       run: php artisan migrate
       working-directory: backend
-
     - name: Start backend
       run: php artisan serve --host=localhost --port=8000 &
       working-directory: backend
+    - name: Build frontend
+      run: npm run build
+      working-directory: frontend-web
     - name: Start frontend
       run: npm run start &
-      working-directory: frontend-web
-    - name: Wait for servers
-      run: npx wait-on http://localhost:3000
       working-directory: frontend-web
     - name: Run Playwright tests
       run: npx playwright test
