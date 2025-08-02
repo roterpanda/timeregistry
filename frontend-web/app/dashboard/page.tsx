@@ -1,35 +1,52 @@
 "use client";
 
-import {useEffect, useState} from "react";
-import axios, {AxiosResponse} from "axios";
-import {useRouter} from "next/navigation";
+import {Button} from "@/components/ui/button";
+import Link from "next/link";
+import {PenIcon, PlusCircleIcon } from "lucide-react";
+import {RequireAuth} from "@/components/auth/RequireAuth";
+import {useAuth} from "@/lib/authContext";
 
 
 export default function Dashboard() {
-  const [data, setData] = useState<string>("");
-  const router = useRouter();
-
-  useEffect(() => {
-    axios.get("/api/proxy/v1/protected")
-      .then((res: AxiosResponse) => {
-        setData(res.data);
-      })
-      .catch (() => {
-        router.push("/login");
-      });
-  }, [router]);
-
+  const { user } = useAuth();
 
   return (
-    <div className="w-1/2 p-4 space-y-4 m-auto shadow rounded-2xl">
-      <h1 className="text-2xl">
-        Dashboard
-      </h1>
-      <p>
-        {data ? data : "Error"}
-      </p>
-    </div>
+    <RequireAuth>
+      <div className="w-full mb-auto mx-auto p-6 space-y-6">
+        <h1 className="text-3xl font-bold">
+          Dashboard
+        </h1>
+        <p className="text-lg">Welcome, {user?.name ?? "User"}</p>
 
+        <div className="flex space-x-4">
+          <Button asChild={true}>
+            <Link href={"/api/proxy/time/register"}>
+              <PenIcon/>
+              Register time
+            </Link>
+          </Button>
+          <Button variant={"secondary"} asChild={true}>
+            <Link href={"/api/proxy/project/new"}>
+              <PlusCircleIcon/>
+              Create new project
+            </Link>
+          </Button>
+        </div>
 
+        <div className="mt-8">
+          <h2 className="text-xl font-semibold mb-4">Recent Time Registrations</h2>
+          <ul className="divide-y divide-gray-200">
+            <li className="py-2 flex justify-between">
+              <span>Project Alpha</span>
+              <span>2h - 2024-06-10</span>
+            </li>
+            <li className="py-2 flex justify-between">
+              <span>Project Beta</span>
+              <span>2h - 2024-06-10</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </RequireAuth>
   )
 }

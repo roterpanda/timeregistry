@@ -10,6 +10,7 @@ import axios, {AxiosError, AxiosResponse} from "axios";
 import {useState} from "react";
 import {Alert, AlertTitle} from "@/components/ui/alert";
 import {useAuth} from "@/lib/authContext";
+import {useRouter} from "next/navigation";
 
 const formSchema = z.object({
   email: z.string().email("Must be an email"),
@@ -20,6 +21,7 @@ export function LoginForm() {
   const [alert, setAlert] = useState<string>("");
   const [success, setSuccess] = useState<boolean>(false);
   const {login} = useAuth();
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -45,6 +47,7 @@ export function LoginForm() {
             setAlert("Login successful");
             setSuccess(true);
             form.reset();
+            router.push("/dashboard");
           })
           .catch((err: AxiosError) => {
             if (err.status === 401) {

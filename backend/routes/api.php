@@ -11,8 +11,8 @@ Route::prefix('v1')->group(function () {
         return response()->json(['message' => 'API is working!']);
     });
 
-    Route::get('protected', [UserResourcesController::class, 'getUserName'])
-        ->middleware(['verify.signature', 'auth:sanctum']);
+    Route::get('user', [UserResourcesController::class, 'getUserName'])
+        ->middleware(['auth:sanctum']);
 
 });
 
