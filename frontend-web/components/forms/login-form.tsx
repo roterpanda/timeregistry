@@ -30,7 +30,7 @@ export function LoginForm() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    axios.get(`${process.env.NEXT_PUBLIC_API_URL}/sanctum/csrf-cookie`, { withCredentials: true })
+    axios.get(`${process.env.NEXT_PUBLIC_API_URL}/sanctum/csrf-cookie`, {withCredentials: true})
       .then(() => {
         axios.post(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
           email: values.email,
@@ -52,10 +52,7 @@ export function LoginForm() {
               setAlert("Not authorized. Try again.")
             }
           });
-
       });
-
-
   }
 
   return (

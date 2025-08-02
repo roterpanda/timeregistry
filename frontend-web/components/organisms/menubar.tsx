@@ -3,6 +3,8 @@
 import {useAuth} from "@/lib/authContext";
 import {Button} from "@/components/ui/button";
 import axios from "axios";
+import Link from "next/link";
+import {LogInIcon, LogOutIcon} from "lucide-react";
 
 export default function MenuBar() {
   const {isAuthenticated, user, logout} = useAuth();
@@ -14,15 +16,27 @@ export default function MenuBar() {
 
   return (
     <header className="bg-primary-foreground w-full px-6 py-4 flex justify-between items-center border-b">
-      <div className="font-sans font-bold text-xl text-foreground">TimeRegistry</div>
+      <div className="font-sans font-bold text-xl text-foreground">
+        <Link href="/">
+          TimeRegistry
+        </Link>
+      </div>
 
       {isAuthenticated ? (
-        <div className="flex gap-4">
+        <div className="flex items-center gap-4">
           <span>Hello, {user ? user.name : "Unknown"}</span>
-          <Button variant="outline" onClick={handleLogout}>Logout</Button>
+          <Button variant="destructive" onClick={handleLogout}>
+            <LogOutIcon />
+            Logout
+          </Button>
         </div>
       ) : (
-        <Button variant="outline">Sign In</Button>
+        <Button variant="outline" asChild={true}>
+          <Link href="/login">
+            <LogInIcon />
+            Sign In
+          </Link>
+        </Button>
       )}
     </header>
   );

@@ -19,20 +19,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
   const [user, setUser] = useState<User>(null);
 
   useEffect(() => {
-    const storedUser: string | null = localStorage.getItem("user");
+    const storedUser: string | null = sessionStorage.getItem("user");
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (e) {
+        console.error("Failed to parse user from sessionStorage:", e);
+        setUser(null);
+      }
     }
   }, []);
 
   const login = (userData: { name: string }) => {
     setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData));
+    sessionStorage.setItem("user", JSON.stringify(userData));
   }
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("user");
+    sessionStorage.removeItem("user");
   }
 
   return (
