@@ -3,8 +3,7 @@ import {signRequest} from "@/lib/signRequest";
 import axios from "axios";
 
 const allowedEndpoints: string[] = [
-  "register",
-  "login",
+  "v1/protected",
 ];
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -31,6 +30,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
       data: req.body,
       params: req.query,
+      withCredentials: true,
+      withXSRFToken: true
     });
     res.status(response.status).json(response.data);
   } catch (err: unknown) {
@@ -40,8 +41,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .json({
           error: {
             message: err.response?.data?.message || "An error occurred while processing your request.",
+            details: err.response?.data || null
           },
         });
+    } else {
+      res.status(500).json({ error: { message: "Unknown error occurred." } });
     }
   }
 }

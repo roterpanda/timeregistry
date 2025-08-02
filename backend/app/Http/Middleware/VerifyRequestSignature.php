@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class VerifyRequestSignature
@@ -17,9 +18,9 @@ class VerifyRequestSignature
     {
         $timestamp = $request->header('X-Request-Timestamp');
         $signature = $request->header('X-Request-Signature');
-        $secret = env('FRONTEND_WEB_SECRET');
+        $secret = config('app.frontend_web_secret');
 
-        if (is_null($secret)) {
+        if (empty($secret)) {
             abort(500, 'Server configuration error.');
         }
 

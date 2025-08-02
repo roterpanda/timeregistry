@@ -37,23 +37,29 @@ export function RegisterForm() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    axios.post("/api/proxy/register", {
-      name: values.username,
-      email: values.email,
-      password: values.password,
-      password_c: values.passwordConfirm
-    })
+    axios.get(`${process.env.NEXT_PUBLIC_API_URL}/sanctum/csrf-cookie`, {withCredentials: true})
       .then(() => {
-        setAlert("User registered successfully");
-        setSuccess(true);
-        form.reset();
+        axios.post(`${process.env.NEXT_PUBLIC_API_URL}/register`, {
+          name: values.username,
+          email: values.email,
+          password: values.password,
+          password_c: values.passwordConfirm
+        }, {
+          withCredentials: true,
+          withXSRFToken: true,
+        })
+          .then(() => {
+            setAlert("User registered successfully");
+            setSuccess(true);
+            form.reset();
+          })
+          .catch((err: AxiosError) => {
+            if (err.status === 422) {
+              setSuccess(false);
+              setAlert("Something went wrong. Try again.")
+            }
+          });
       })
-      .catch((err: AxiosError) => {
-        if (err.status === 422) {
-          setSuccess(false);
-          setAlert("Something went wrong. Try again.")
-        }
-      });
   }
 
   return (
