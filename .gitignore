@@ -1,5 +1,7 @@
 # Root .gitignore
 
+node_modules
+
 # Node modules (for React frontend)
 frontend/node_modules/
 
@@ -54,3 +56,9 @@ backend/public/hot
 backend/public/mix-manifest.json
 backend/public/css/
 backend/public/js/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
