@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import {AuthProvider} from "@/lib/authContext";
 import MenuBar from "@/components/organisms/menubar";
+import {SidebarProvider} from "@/components/ui/sidebar";
 
 export const metadata: Metadata = {
   title: "TimeRegistry",
