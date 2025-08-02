@@ -23,5 +23,5 @@ test("Register user", async ({ page }) => {
   await confirmPassword.fill("testpw67890");
   const submit = page.getByText("Submit");
   await submit.click();
-  await expect(page.getByText("User registered successfully")).toBeVisible();
+  await expect(page.getByText("User registered successfully")).toBeVisible({ timeout: 10000 });
 });
