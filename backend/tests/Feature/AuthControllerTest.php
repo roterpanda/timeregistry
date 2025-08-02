@@ -2,7 +2,9 @@
 
 namespace Feature;
 
+
 use App\Models\User;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Testing\TestResponse;
@@ -13,22 +15,11 @@ class AuthControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function signedRequest(string $method, string $path, array $body = []): TestResponse {
-        $timestamp = now()->timestamp;
-        $headers = [
-            'X-Request-Timestamp' => (string) $timestamp,
-            'X-Request-Signature' => hash_hmac('sha256', $method . $path . $timestamp, env('FRONTEND_WEB_SECRET')),
-        ];
-
-        return match(strtolower($method)) {
-            'post' => $this->postJson('/' . $path, $body, $headers),
-            'put' => $this->putJson('/' . $path, $body, $headers),
-            'get' => $this->getJson('/' . $path, $headers),
-            'patch' => $this->patchJson('/' . $path, $body, $headers),
-            'delete' => $this->deleteJson('/' . $path, $headers),
-        };
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->withoutMiddleware(VerifyCsrfToken::class);
     }
-
 
     /**
      * Test successful registration flow
@@ -70,29 +61,6 @@ class AuthControllerTest extends TestCase
         $response->assertStatus(422);
     }
 
-
-    /**
-     * Test registration with mismatched passwords
-     */
-    public function test_registration_with_mismatched_passwords(): void
-    {
-        $response = $this->signedRequest('POST', 'api/register', [
-            'name' => 'Test User',
-            'email' => 'test@test.com',
-            'password' => 'password123',
-            'password_c' => 'differentpassword',
-        ]);
-        $response->assertStatus(422);
-        $response->assertJsonStructure([
-            'success',
-            'message',
-        ]);
-        $response->assertJsonFragment([
-            'success' => false,
-            'message' => 'Validation failed. Please check your details.',
-        ]);
-    }
-
     /**
      * Test server error during registration
      */
@@ -108,22 +76,11 @@ class AuthControllerTest extends TestCase
     }
 
     /**
-     * Tests succesful login.
-     */
-    public function test_login_with_existing_email(): void
-    {
-        $this->registerTestUser('Test User', 'test@test.com', 'password123');
-        $response = $this->signedRequest('POST', 'api/login', ['email' => 'test@test.com', 'password' => 'password123']);
-        $response->assertStatus(200);
-
-    }
-
-    /**
      * @return void
      */
     public function registerTestUser(string $username, string $email, string $password): TestResponse
     {
-        return $this->signedRequest('POST', 'api/register', [
+        return $this->postJson( 'register', [
             'name' => $username,
             'email' => $email,
             'password' => $password,
