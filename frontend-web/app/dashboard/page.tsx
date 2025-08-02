@@ -3,7 +3,6 @@
 import {Button} from "@/components/ui/button";
 import Link from "next/link";
 import {PenIcon, PlusCircleIcon } from "lucide-react";
-import {RequireAuth} from "@/components/auth/RequireAuth";
 import {useAuth} from "@/lib/authContext";
 
 
@@ -11,8 +10,7 @@ export default function Dashboard() {
   const { user } = useAuth();
 
   return (
-    <RequireAuth>
-      <div className="w-full mb-auto mx-auto p-6 space-y-6">
+      <div className="w-full mx-auto p-6 space-y-6">
         <h1 className="text-3xl font-bold">
           Dashboard
         </h1>
@@ -47,6 +45,5 @@ export default function Dashboard() {
           </ul>
         </div>
       </div>
-    </RequireAuth>
   )
 }
