@@ -18,13 +18,13 @@ export default function Dashboard() {
 
         <div className="flex space-x-4">
           <Button asChild={true}>
-            <Link href={"/api/proxy/time/register"}>
+            <Link href={"/dashboard"}>
               <PenIcon/>
               Register time
             </Link>
           </Button>
           <Button variant={"secondary"} asChild={true}>
-            <Link href={"/api/proxy/project/new"}>
+            <Link href={"/dashboard/project/create"}>
               <PlusCircleIcon/>
               Create new project
             </Link>
