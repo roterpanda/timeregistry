@@ -1,0 +1,64 @@
+name: Playwright Tests
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+permissions:
+  contents: read
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    env:
+      FRONTEND_WEB_SECRET: ${{ secrets.WEB_SECRET }}
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+    - name: Install dependencies
+      run: npm ci
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+    - name: Install frontend dependencies
+      run: npm ci
+      working-directory: frontend-web
+    - name: Install backend dependencies
+      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      working-directory: backend
+    - name: Copy .env
+      run: cd backend && php -r "file_exists('.env') || copy('.env.example', '.env');"
+    - name: Generate key
+      run: |
+        cd backend
+        mkdir -p bootstrap/cache storage storage/framework/views
+        php artisan key:generate
+    - name: Directory Permissions
+      run: cd backend && chmod -R 777 storage bootstrap/cache storage/framework/views
+    - name: Create Database
+      run: |
+        cd backend
+        mkdir -p database
+        touch database/database.sqlite
+    - name: Run migration
+      run: php artisan migrate
+      working-directory: backend
+    - name: Start backend
+      run: php artisan serve --host=localhost --port=8000 &
+      working-directory: backend
+    - name: Build frontend
+      run: npm run build
+      working-directory: frontend-web
+    - name: Start frontend
+      run: npm run start &
+      working-directory: frontend-web
+    - name: Run Playwright tests
+      run: npx playwright test
+    - uses: actions/upload-artifact@v4
+      if: ${{ !cancelled() }}
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30
