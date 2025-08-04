@@ -13,7 +13,7 @@ import {useAuth} from "@/lib/authContext";
 import {useRouter} from "next/navigation";
 
 const formSchema = z.object({
-  email: z.string().email("Must be an email"),
+  email: z.email("Must be an email"),
   password: z.string(),
 });
 

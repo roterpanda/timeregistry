@@ -10,6 +10,7 @@ import axios, {AxiosError} from "axios";
 import {useState} from "react";
 import {Alert, AlertTitle} from "@/components/ui/alert";
 import {Textarea} from "@/components/ui/textarea";
+import {useRouter} from "next/navigation";
 
 const formSchema = z.object({
   name: z.string().min(3, "Name must be at least three letters long"),
@@ -19,6 +20,7 @@ const formSchema = z.object({
 export function ProjectForm() {
   const [alert, setAlert] = useState<string>("");
   const [success, setSuccess] = useState<boolean>(false);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -42,6 +44,7 @@ export function ProjectForm() {
             setAlert("Project created successfully");
             setSuccess(true);
             form.reset();
+            router.push("/dashboard");
           })
           .catch((err: AxiosError) => {
             if (err.status === 422) {

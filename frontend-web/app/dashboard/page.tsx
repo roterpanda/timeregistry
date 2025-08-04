@@ -4,6 +4,7 @@ import {Button} from "@/components/ui/button";
 import Link from "next/link";
 import {PenIcon, PlusCircleIcon } from "lucide-react";
 import {useAuth} from "@/lib/authContext";
+import {ProjectList} from "@/components/data-components/project-list";
 
 
 export default function Dashboard() {
@@ -29,6 +30,11 @@ export default function Dashboard() {
               Create new project
             </Link>
           </Button>
+        </div>
+
+        <div className="mt-8">
+          <h2 className="text-xl font-semibold mb-4">Your Projects</h2>
+          <ProjectList limit={4} />
         </div>
 
         <div className="mt-8">

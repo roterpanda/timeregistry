@@ -12,9 +12,15 @@ class ProjectController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $owner = Auth::guard('web')->user();
+        if (!$owner) {
+            abort(403);
+        }
+        $limit = intval($request->query('limit', 10));
+        $projects = Project::orderBy('created_at', 'desc')->where('owner_id', $owner->id)->take($limit)->get();
+        return response()->json($projects);
     }
 
     /**
