@@ -34,7 +34,7 @@ export default function Dashboard() {
 
         <div className="mt-8">
           <h2 className="text-xl font-semibold mb-4">Your Projects</h2>
-          <ProjectList limit={4} />
+          <ProjectList limit={3} />
         </div>
 
         <div className="mt-8">

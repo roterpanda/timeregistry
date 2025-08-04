@@ -1,11 +1,28 @@
+"use client";
+
 import {Button} from "@/components/ui/button";
 import {Card, CardContent} from "@/components/ui/card";
 import {Separator} from "@/components/ui/separator";
 import Link from "next/link";
+import {useAuth} from "@/lib/authContext";
+import {useEffect} from "react";
+import {useRouter} from "next/navigation";
 
 export default function Home() {
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/dashboard');
+    }
+  }, [isAuthenticated]);
+
   return (
         <main className="flex bg-secondary flex-1 flex-col justify-center items-center px-4">
+          {isAuthenticated && <p>Redirecting to dashboard...</p>}
+
+          {!isAuthenticated &&
             <Card className="max-w-lg w-full shadow-lg">
                 <CardContent className="py-8 px-6 flex flex-col items-center">
                     <h1 className="text-4xl font-bold mb-2 text-center">Track Your Time</h1>
@@ -21,7 +38,7 @@ export default function Home() {
                         </div>
                     </div>
                 </CardContent>
-            </Card>
+            </Card> }
         </main>
 
   );

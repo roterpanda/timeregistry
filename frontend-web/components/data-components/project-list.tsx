@@ -27,7 +27,7 @@ export function ProjectList({ limit = 10 }) {
     <div className="grid lg:grid-cols-4 sm:grid-cols-3 gap-4">
       {loading && <p>Fetching projects...</p>}
       {!loading && error.length > 0 && <p>{error}</p>}
-      {!loading && projects.length === 0 && <p>No projects to show</p>}
+      {!loading && error.length === 0 && projects.length === 0 && <p>No projects to show</p>}
       {projects.map((project, index) => (
         <Card key={index}>
           <CardContent>
