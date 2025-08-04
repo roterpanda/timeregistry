@@ -4,6 +4,7 @@ import {Button} from "@/components/ui/button";
 import Link from "next/link";
 import {PenIcon, PlusCircleIcon } from "lucide-react";
 import {useAuth} from "@/lib/authContext";
+import {ProjectList} from "@/components/data-components/project-list";
 
 
 export default function Dashboard() {
@@ -18,17 +19,22 @@ export default function Dashboard() {
 
         <div className="flex space-x-4">
           <Button asChild={true}>
-            <Link href={"/api/proxy/time/register"}>
+            <Link href={"/dashboard"}>
               <PenIcon/>
               Register time
             </Link>
           </Button>
           <Button variant={"secondary"} asChild={true}>
-            <Link href={"/api/proxy/project/new"}>
+            <Link href={"/dashboard/project/create"}>
               <PlusCircleIcon/>
               Create new project
             </Link>
           </Button>
+        </div>
+
+        <div className="mt-8">
+          <h2 className="text-xl font-semibold mb-4">Your Projects</h2>
+          <ProjectList limit={3} />
         </div>
 
         <div className="mt-8">

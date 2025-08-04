@@ -4,6 +4,7 @@ import axios from "axios";
 
 const allowedEndpoints: string[] = [
   "v1/user",
+  "v1/project"
 ];
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

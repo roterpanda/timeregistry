@@ -6,56 +6,53 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
-import axios, {AxiosError, AxiosResponse} from "axios";
+import axios, {AxiosError} from "axios";
 import {useState} from "react";
 import {Alert, AlertTitle} from "@/components/ui/alert";
-import {useAuth} from "@/lib/authContext";
+import {Textarea} from "@/components/ui/textarea";
 import {useRouter} from "next/navigation";
 
 const formSchema = z.object({
-  email: z.email("Must be an email"),
-  password: z.string(),
+  name: z.string().min(3, "Name must be at least three letters long"),
+  description: z.string(),
 });
 
-export function LoginForm() {
+export function ProjectForm() {
   const [alert, setAlert] = useState<string>("");
   const [success, setSuccess] = useState<boolean>(false);
-  const {login} = useAuth();
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      name: "",
+      description: "",
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     axios.get(`${process.env.NEXT_PUBLIC_API_URL}/sanctum/csrf-cookie`, {withCredentials: true})
       .then(() => {
-        axios.post(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
-          email: values.email,
-          password: values.password,
+        axios.post("/api/proxy/v1/project", {
+          name: values.name,
+          description: values.description,
         }, {
-          headers: {"Content-Type": "application/json"},
           withCredentials: true,
           withXSRFToken: true,
         })
-          .then((result: AxiosResponse) => {
-            login({name: result.data.name});
-            setAlert("Login successful");
+          .then(() => {
+            setAlert("Project created successfully");
             setSuccess(true);
             form.reset();
             router.push("/dashboard");
           })
           .catch((err: AxiosError) => {
-            if (err.status === 401) {
+            if (err.status === 422) {
               setSuccess(false);
-              setAlert("Not authorized. Try again.")
+              setAlert("Something went wrong. Try again.")
             }
           });
-      });
+      })
   }
 
   return (
@@ -70,30 +67,30 @@ export function LoginForm() {
         })} className="space-y-6">
           <FormField
             control={form.control}
-            name="email"
+            name="name"
             render={({field}) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>Project name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Email" {...field} />
+                  <Input placeholder="Project name" {...field} />
                 </FormControl>
                 <FormDescription>
-                  Your email address.
+                  Your project name.
                 </FormDescription>
                 <FormMessage/>
               </FormItem>
             )}/>
           <FormField
             control={form.control}
-            name="password"
+            name="description"
             render={({field}) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <FormLabel>Description</FormLabel>
                 <FormControl>
-                  <Input placeholder="Password" {...field} type="password"/>
+                  <Textarea placeholder="Description" {...field} />
                 </FormControl>
                 <FormDescription>
-                  Your password.
+                  The project description
                 </FormDescription>
                 <FormMessage/>
               </FormItem>
