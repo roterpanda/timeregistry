@@ -14,9 +14,9 @@ export default function Home() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.push('/dashboard');
+      router.push("/dashboard");
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, router]);
 
   return (
         <main className="flex bg-secondary flex-1 flex-col justify-center items-center px-4">

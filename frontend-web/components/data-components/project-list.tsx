@@ -21,7 +21,7 @@ export function ProjectList({ limit = 10 }) {
         setError("Could not fetch list of projects.");
       })
       .finally(() => setLoading(false))
-  }, [user]);
+  }, [user, limit]);
 
   return (
     <div className="grid lg:grid-cols-4 sm:grid-cols-3 gap-4">

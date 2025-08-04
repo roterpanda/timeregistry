@@ -33,7 +33,7 @@ export function ProjectForm() {
   function onSubmit(values: z.infer<typeof formSchema>) {
     axios.get(`${process.env.NEXT_PUBLIC_API_URL}/sanctum/csrf-cookie`, {withCredentials: true})
       .then(() => {
-        axios.post(`/api/proxy/v1/project`, {
+        axios.post("/api/proxy/v1/project", {
           name: values.name,
           description: values.description,
         }, {
