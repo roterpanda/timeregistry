@@ -4,11 +4,13 @@ import {useEffect, useState} from "react";
 import {useAuth} from "@/lib/authContext";
 import axios from "axios";
 import {Card, CardContent, CardDescription, CardTitle} from "@/components/ui/card";
+import { Project, ProjectListProps} from "@/lib/types";
 
 
-export function ProjectList({ limit = 10 }) {
+export function ProjectList({ limit = 10, showSearchInput = false } : ProjectListProps ) {
   const {user} = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
+  const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
 
@@ -16,6 +18,7 @@ export function ProjectList({ limit = 10 }) {
     axios.get(`/api/proxy/v1/project?limit=${limit}`)
       .then((res) => {
         setProjects(res.data);
+        setFilteredProjects([...projects]);
       })
       .catch(() => {
         setError("Could not fetch list of projects.");
@@ -28,7 +31,7 @@ export function ProjectList({ limit = 10 }) {
       {loading && <p>Fetching projects...</p>}
       {!loading && error.length > 0 && <p>{error}</p>}
       {!loading && error.length === 0 && projects.length === 0 && <p>No projects to show</p>}
-      {projects.map((project, index) => (
+      {filteredProjects.map((project, index) => (
         <Card key={index}>
           <CardContent>
             <CardTitle>

@@ -1,10 +1,11 @@
 
 
-type Project = {
+export interface Project {
   name: string;
   description: string;
-};
+}
 
-type ProjectListProps = {
+export interface ProjectListProps {
   limit?: number;
-};
+  showSearchInput?: boolean;
+}
