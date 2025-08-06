@@ -19,7 +19,9 @@ class ProjectController extends Controller
             abort(403);
         }
         $limit = intval($request->query('limit', 10));
-        $projects = Project::orderBy('created_at', 'desc')->where('owner_id', $owner->id)->take($limit)->get();
+        $projects = $limit === 0
+            ? Project::orderBy('created_at', 'desc')->where('owner_id', $owner->id)->get()
+            : Project::orderBy('created_at', 'desc')->where('owner_id', $owner->id)->take($limit)->get();
         return response()->json($projects);
     }
 

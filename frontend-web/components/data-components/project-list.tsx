@@ -40,7 +40,7 @@ export function ProjectList({ limit = 10, showSearchInput = false } : ProjectLis
         </div>)
       }
 
-      <div className="grid grid-cols-1 md:grid-cols-4 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 sm:grid-cols-3 gap-4 items-stretch auto-rows-fr">
         {loading && <p>Fetching projects...</p>}
         {!loading && error.length > 0 && <p>{error}</p>}
         {!loading && error.length === 0 && filteredProjects.length === 0 && <p>No projects to show</p>}
