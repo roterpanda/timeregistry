@@ -12,13 +12,15 @@ test.afterEach(() => {
 test("Register user", async ({ page }) => {
   await page.goto("http://localhost:3000/register");
   const username = page.getByPlaceholder("Username");
-  await username.waitFor({state: "visible"});
-  await username.click();
+  await expect(username).toBeVisible();
   await username.fill("testuser");
   const email = page.getByPlaceholder("Email");
+  await expect(email).toBeVisible();
   await email.fill("test@example.com");
   const password = page.getByPlaceholder("Password", {exact: true});
   const confirmPassword = page.getByPlaceholder("Confirm Password", {exact: true});
+  await expect(password).toBeVisible();
+  await expect(confirmPassword).toBeVisible();
   await password.fill("testpw67890");
   await confirmPassword.fill("testpw67890");
   const submit = page.getByText("Submit");
