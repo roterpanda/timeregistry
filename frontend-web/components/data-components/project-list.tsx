@@ -1,6 +1,6 @@
 "use client";
 
-import React, {KeyboardEventHandler, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useAuth} from "@/lib/authContext";
 import axios from "axios";
 import {Card, CardContent, CardDescription, CardTitle} from "@/components/ui/card";
@@ -16,6 +16,12 @@ export function ProjectList({ limit = 10, showSearchInput = false } : ProjectLis
   const [error, setError] = useState<string>("");
 
   useEffect(() => {
+    if (!user) {
+      setProjects([]);
+      setFilteredProjects([]);
+      setLoading(false);
+      return;
+    }
     axios.get(`/api/proxy/v1/project?limit=${limit}`)
       .then((res) => {
         setProjects(res.data);

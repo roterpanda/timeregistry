@@ -13,7 +13,7 @@ import {Textarea} from "@/components/ui/textarea";
 import {useRouter} from "next/navigation";
 
 const formSchema = z.object({
-  name: z.string().min(3, "Name must be at least three letters long"),
+  name: z.string().nonempty().min(3, "Name must be at least three letters long"),
   description: z.string(),
 });
 

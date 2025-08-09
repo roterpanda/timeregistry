@@ -6,12 +6,19 @@ use Illuminate\Console\Command;
 
 class DeleteTestUser extends Command
 {
-    protected $signature = 'test:cleanup-users';
-    protected $description = 'Delete test users';
+    protected $signature = 'test:cleanup-users {email}';
+    protected $description = 'Delete test users by email';
 
     public function handle(): void
     {
-        User::where('email', 'test@example.com')->delete();
-        $this->info('Test users deleted.');
+        $email = $this->argument('email');
+        $user = User::where('email', $email)->first();
+
+        if ($user) {
+            $user->delete();
+            $this->info("Test user deleted: {$email}");
+        } else {
+            $this->info("Test user not found: {$email}");
+        }
     }
 }

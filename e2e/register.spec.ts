@@ -1,27 +1,43 @@
 import {expect, test} from "@playwright/test";
 import {execSync} from "node:child_process";
+import {generateTestUser} from "./helpers/testData";
+import {registerUser} from "./helpers/registerHelper";
 
-test.beforeAll(() => {
-  execSync("cd backend && php artisan test:cleanup-users", { stdio: "inherit"});
-})
+const createdUsers: string[] = [];
 
 test.afterEach(() => {
-  execSync("cd backend && php artisan test:cleanup-users", { stdio: "inherit"});
+  createdUsers.forEach(email => {
+    try {
+      execSync(`cd backend && php artisan test:cleanup-users ${email}`, { stdio: "inherit" });
+    } catch (error) {
+      console.error("Error cleaning up user:", error);
+    }
+  });
+  createdUsers.length = 0;
 })
 
 test("Register user", async ({ page }) => {
-  await page.goto("http://localhost:3000/register");
-  const username = page.getByPlaceholder("Username");
-  await username.waitFor({state: "visible"});
-  await username.click();
-  await username.fill("testuser");
-  const email = page.getByPlaceholder("Email");
-  await email.fill("test@example.com");
-  const password = page.getByPlaceholder("Password", {exact: true});
-  const confirmPassword = page.getByPlaceholder("Confirm Password", {exact: true});
-  await password.fill("testpw67890");
-  await confirmPassword.fill("testpw67890");
-  const submit = page.getByText("Submit");
-  await submit.click();
-  await expect(page.getByText("User registered successfully")).toBeVisible({ timeout: 10000 });
+  const testUser = generateTestUser();
+  createdUsers.push(testUser.email);
+
+  await registerUser(page, testUser, "/register");
+
 });
+
+test("Login user", async ({ page }) => {
+  const testUser = generateTestUser();
+  createdUsers.push(testUser.email);
+  await registerUser(page, testUser, "/register");
+  await page.goto("/login");
+  const emailInput = page.locator('input[name="email"]');
+  await expect(emailInput).toBeVisible({ timeout: 5000 });
+  await emailInput.click();
+  await emailInput.fill(testUser.email);
+
+  const passwordInput = page.locator('input[name="password"]');
+  await expect(passwordInput).toBeVisible({ timeout: 5000 });
+  await passwordInput.click();
+  await passwordInput.fill(testUser.password);
+  await page.click("button[type=submit]");
+  await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
+})
