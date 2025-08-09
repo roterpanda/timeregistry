@@ -1,7 +1,7 @@
 import {expect, test} from "@playwright/test";
 import {execSync} from "node:child_process";
 import {generateTestUser} from "./helpers/testData";
-import {registerUser} from "./helpers/registerHelper";
+import {loginUser, registerUser} from "./helpers/testHelpers";
 
 const createdUsers: string[] = [];
 
@@ -24,20 +24,12 @@ test("Register user", async ({ page }) => {
 
 });
 
-test("Login user", async ({ page }) => {
+test("Login user and show dashboard", async ({ page }) => {
   const testUser = generateTestUser();
   createdUsers.push(testUser.email);
-  await registerUser(page, testUser, "/register");
-  await page.goto("/login");
-  const emailInput = page.locator('input[name="email"]');
-  await expect(emailInput).toBeVisible({ timeout: 5000 });
-  await emailInput.click();
-  await emailInput.fill(testUser.email);
 
-  const passwordInput = page.locator('input[name="password"]');
-  await expect(passwordInput).toBeVisible({ timeout: 5000 });
-  await passwordInput.click();
-  await passwordInput.fill(testUser.password);
-  await page.click("button[type=submit]");
+  await registerUser(page, testUser, "/register");
+  await loginUser(page, testUser, "/login");
+
   await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
 })
