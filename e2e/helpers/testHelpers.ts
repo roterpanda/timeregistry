@@ -47,6 +47,8 @@ export async function registerUser(page: Page, user: {username:string, password:
 
 
 export async function loginUser(page: Page, user: {email:string, password:string}, url: string ) {
+  await page.request.get("http://localhost:8000/sanctum/csrf-cookie");
+
   await page.goto("/login", { waitUntil: "domcontentloaded" });
   const emailInput = page.locator('input[name="email"]');
   await expect(emailInput).toBeVisible({ timeout: 5000 });
