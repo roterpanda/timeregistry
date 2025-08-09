@@ -9,10 +9,10 @@ export async function registerUser(page: Page, user: {username:string, password:
 
   // Username
   const username = page.getByPlaceholder("Username");
-  await expect(username).toBeVisible();
+  await expect(username).toBeVisible({ timeout: 5000 });
   await expect(username).toBeEnabled();
   await username.click();
-  await username.pressSequentially(user.username, { delay: 2 }); // slow typing prevents race
+  await username.fill(user.username);
   await expect(username).toHaveValue(user.username);
 
   // Email
@@ -21,6 +21,7 @@ export async function registerUser(page: Page, user: {username:string, password:
   await expect(email).toBeEnabled();
   await email.click();
   await email.fill(user.email);
+  await expect(email).toHaveValue(user.email);
 
   // Password
   const password = page.getByPlaceholder("Password", { exact: true });
@@ -42,4 +43,22 @@ export async function registerUser(page: Page, user: {username:string, password:
   await submit.click();
 
   await expect(page.getByText("User registered successfully")).toBeVisible();
+}
+
+
+export async function loginUser(page: Page, user: {email:string, password:string}, url: string ) {
+  await page.request.get("http://localhost:8000/sanctum/csrf-cookie");
+
+  await page.goto("/login", { waitUntil: "domcontentloaded" });
+  const emailInput = page.locator('input[name="email"]');
+  await expect(emailInput).toBeVisible({ timeout: 5000 });
+  await emailInput.click();
+  await emailInput.fill(user.email);
+
+  const passwordInput = page.locator('input[name="password"]');
+  await expect(passwordInput).toBeVisible({ timeout: 5000 });
+  await passwordInput.click();
+  await passwordInput.fill(user.password);
+  await page.click("button[type=submit]");
+
 }
