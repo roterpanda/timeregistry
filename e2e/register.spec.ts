@@ -20,18 +20,24 @@ test("Register user", async ({ page }) => {
   const testUser = generateTestUser();
   createdUsers.push(testUser.email);
 
-  await registerUser(page, testUser, "http://localhost:3000/register");
+  await registerUser(page, testUser, "/register");
 
 });
 
 test("Login user", async ({ page }) => {
   const testUser = generateTestUser();
   createdUsers.push(testUser.email);
-  await registerUser(page, testUser, "http://localhost:3000/register");
-  await page.goto("http://localhost:3000/login");
-  await page.fill("input[name=email]", testUser.email);
-  await page.fill("input[name=password]", testUser.password);
-  await page.click("button[type=submit]", { timeout: 2000 });
-  await page.waitForURL("http://localhost:3000/dashboard", { timeout: 5000 });
+  await registerUser(page, testUser, "/register");
+  await page.goto("/login");
+  const emailInput = page.locator('input[name="email"]');
+  await expect(emailInput).toBeVisible({ timeout: 5000 });
+  await emailInput.click();
+  await emailInput.fill(testUser.email);
+
+  const passwordInput = page.locator('input[name="password"]');
+  await expect(passwordInput).toBeVisible({ timeout: 5000 });
+  await passwordInput.click();
+  await passwordInput.fill(testUser.password);
+  await page.click("button[type=submit]");
   await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
 })
