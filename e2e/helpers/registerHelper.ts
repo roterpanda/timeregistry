@@ -2,6 +2,9 @@ import {expect, Page } from "@playwright/test";
 
 
 export async function registerUser(page: Page, user: {username:string, password:string, email:string}, url: string ) {
+
+  await page.goto("http://localhost:8000/sanctum/csrf-cookie", { waitUntil: "networkidle" });
+
   await page.goto(url, { waitUntil: "domcontentloaded" });
 
   // Username
