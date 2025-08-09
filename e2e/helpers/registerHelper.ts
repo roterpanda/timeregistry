@@ -3,16 +3,18 @@ import {expect, Page } from "@playwright/test";
 
 export async function registerUser(page: Page, user: {username:string, password:string, email:string}, url: string ) {
 
-  await page.goto("http://localhost:8000/sanctum/csrf-cookie", { waitUntil: "networkidle" });
+  await page.request.get("http://localhost:8000/sanctum/csrf-cookie");
 
   await page.goto(url, { waitUntil: "domcontentloaded" });
 
   // Username
   const username = page.getByPlaceholder("Username");
-  await expect(username).toBeVisible({ timeout: 5000 });
+  await expect(username).toBeVisible();
   await expect(username).toBeEnabled();
   await username.click();
-  await username.fill(user.username);
+  await username.fill(''); // ensure it's empty before typing
+  await username.pressSequentially(user.username, { delay: 50 }); // slow typing prevents race
+  await expect(username).toHaveValue(user.username);
 
   // Email
   const email = page.getByPlaceholder("Email");
