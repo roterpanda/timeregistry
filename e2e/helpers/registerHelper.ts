@@ -12,8 +12,7 @@ export async function registerUser(page: Page, user: {username:string, password:
   await expect(username).toBeVisible();
   await expect(username).toBeEnabled();
   await username.click();
-  await username.fill(''); // ensure it's empty before typing
-  await username.pressSequentially(user.username, { delay: 50 }); // slow typing prevents race
+  await username.pressSequentially(user.username, { delay: 2 }); // slow typing prevents race
   await expect(username).toHaveValue(user.username);
 
   // Email
