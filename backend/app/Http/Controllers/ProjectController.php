@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class ProjectController extends Controller
@@ -19,16 +20,23 @@ class ProjectController extends Controller
             abort(403);
         }
         $limit = intval($request->query('limit', 10));
-        $projects = $limit === 0
-            ? Project::orderBy('created_at', 'desc')
-                ->where('is_public', 1)
-                ->orWhere('owner_id', $owner->id)
-                ->get()
-            : Project::orderBy('created_at', 'desc')
-                ->where('is_public', 1)
-                ->orWhere('owner_id', $owner->id)
-                ->take($limit)
-                ->get();
+        $onlyOwn = $request->query('onlyOwn') === 'true';
+
+        $query = Project::orderBy('created_at', 'desc');
+        if ($onlyOwn) {
+            $query->where('owner_id', $owner->id);
+        } else {
+            $query->where('is_public', 1)
+                  ->orWhere('owner_id', $owner->id);
+        }
+        if ($limit > 0) {
+            $query->take($limit);
+        }
+        $projects = $query->get()->map(function ($project) use ($owner) {
+            $project->isOwnProject = $owner->id === $project->owner_id;
+            $project->makeHidden(['owner_id']);
+            return $project;
+        });
         return response()->json($projects);
     }
 

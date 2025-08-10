@@ -3,12 +3,12 @@
 import React, {useEffect, useState} from "react";
 import {useAuth} from "@/lib/authContext";
 import axios from "axios";
-import {Card, CardContent, CardDescription, CardTitle} from "@/components/ui/card";
+import {Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
 import { Project, ProjectListProps} from "@/lib/types";
 import {Input} from "@/components/ui/input";
 
 
-export function ProjectList({ limit = 10, showSearchInput = false } : ProjectListProps ) {
+export function ProjectList({ limit = 10, showSearchInput = false, onlyShowOwnProjects = false } : ProjectListProps ) {
   const {user} = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
@@ -22,7 +22,7 @@ export function ProjectList({ limit = 10, showSearchInput = false } : ProjectLis
       setLoading(false);
       return;
     }
-    axios.get(`/api/proxy/v1/project?limit=${limit}`)
+    axios.get(`/api/proxy/v1/project?limit=${limit}&onlyOwn=${onlyShowOwnProjects}`)
       .then((res) => {
         setProjects(res.data);
         setFilteredProjects(res.data);
@@ -31,10 +31,12 @@ export function ProjectList({ limit = 10, showSearchInput = false } : ProjectLis
         setError("Could not fetch list of projects.");
       })
       .finally(() => setLoading(false))
-  }, [user, limit]);
+  }, [user, limit, onlyShowOwnProjects]);
 
   const handleSearchFiltering = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFilteredProjects(() => projects.filter((project) => project.name.toLowerCase().includes(e.target.value.toLowerCase())));
+    setFilteredProjects(() => projects.filter((project) =>
+      project.name.toLowerCase().includes(e.target.value.toLowerCase())
+    ));
   }
 
   return (
@@ -51,13 +53,20 @@ export function ProjectList({ limit = 10, showSearchInput = false } : ProjectLis
         {!loading && error.length > 0 && <p>{error}</p>}
         {!loading && error.length === 0 && filteredProjects.length === 0 && <p>No projects to show</p>}
         {filteredProjects.map((project, index) => (
-          <Card key={index}>
-            <CardContent>
+          <Card key={index} className={!project.isOwnProject ? "bg-secondary" : ""}>
+            <CardHeader>
               <CardTitle>
                 <h4 className="font-semibold">
                   {project.name}
                 </h4>
+                <span className="text-xs font-normal">{project.project_code}</span>
               </CardTitle>
+              <CardAction>
+
+              </CardAction>
+            </CardHeader>
+            <CardContent>
+
               <CardDescription>
                 <p className="text-sm">
                   {project.description}
