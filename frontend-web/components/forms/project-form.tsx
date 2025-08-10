@@ -11,10 +11,13 @@ import {useState} from "react";
 import {Alert, AlertTitle} from "@/components/ui/alert";
 import {Textarea} from "@/components/ui/textarea";
 import {useRouter} from "next/navigation";
+import {Checkbox} from "@/components/ui/checkbox";
 
 const formSchema = z.object({
   name: z.string().nonempty().min(3, "Name must be at least three letters long"),
   description: z.string(),
+  projectCode: z.string().max(32, "Project code must be at most 32 characters long"),
+  isPublic: z.boolean(),
 });
 
 export function ProjectForm() {
@@ -27,6 +30,8 @@ export function ProjectForm() {
     defaultValues: {
       name: "",
       description: "",
+      projectCode: "",
+      isPublic: true,
     },
   });
 
@@ -36,6 +41,8 @@ export function ProjectForm() {
         axios.post("/api/proxy/v1/project", {
           name: values.name,
           description: values.description,
+          project_code: values.projectCode,
+          is_public: values.isPublic,
         }, {
           withCredentials: true,
           withXSRFToken: true,
@@ -82,6 +89,21 @@ export function ProjectForm() {
             )}/>
           <FormField
             control={form.control}
+            name="projectCode"
+            render={({field}) => (
+              <FormItem>
+                <FormLabel>Project code</FormLabel>
+                <FormControl>
+                  <Input placeholder="Project code" {...field} />
+                </FormControl>
+                <FormDescription>
+                  The project code.
+                </FormDescription>
+                <FormMessage/>
+              </FormItem>
+            )}/>
+          <FormField
+            control={form.control}
             name="description"
             render={({field}) => (
               <FormItem>
@@ -91,6 +113,24 @@ export function ProjectForm() {
                 </FormControl>
                 <FormDescription>
                   The project description
+                </FormDescription>
+                <FormMessage/>
+              </FormItem>
+            )}/>
+          <FormField
+            control={form.control}
+            name="isPublic"
+            render={({field}) => (
+              <FormItem>
+
+                <FormControl>
+                  <div className="flex items-center gap-2">
+                    <Checkbox checked={field.value} onCheckedChange={field.onChange} ref={field.ref} />
+                    <FormLabel>Is public?</FormLabel>
+                  </div>
+                </FormControl>
+                <FormDescription>
+                  Determines if project is available to other users.
                 </FormDescription>
                 <FormMessage/>
               </FormItem>

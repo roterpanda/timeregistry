@@ -20,8 +20,15 @@ class ProjectController extends Controller
         }
         $limit = intval($request->query('limit', 10));
         $projects = $limit === 0
-            ? Project::orderBy('created_at', 'desc')->where('owner_id', $owner->id)->get()
-            : Project::orderBy('created_at', 'desc')->where('owner_id', $owner->id)->take($limit)->get();
+            ? Project::orderBy('created_at', 'desc')
+                ->where('is_public', 1)
+                ->orWhere('owner_id', $owner->id)
+                ->get()
+            : Project::orderBy('created_at', 'desc')
+                ->where('is_public', 1)
+                ->orWhere('owner_id', $owner->id)
+                ->take($limit)
+                ->get();
         return response()->json($projects);
     }
 
@@ -32,6 +39,8 @@ class ProjectController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|min:3',
+            'project_code' => 'max:32|unique:projects,project_code',
+            'is_public' => 'boolean',
         ]);
 
         if ($validator->fails()) {
@@ -42,6 +51,8 @@ class ProjectController extends Controller
             'name' => $request->name,
             'description' => $request->description,
             'owner_id' => Auth::guard('web')->user()->id,
+            'project_code' => $request->project_code,
+            'is_public' => $request->is_public,
             ]);
 
         return response()->json($project, 201);
