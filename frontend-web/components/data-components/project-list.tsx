@@ -6,6 +6,7 @@ import axios from "axios";
 import {Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
 import { Project, ProjectListProps} from "@/lib/types";
 import {Input} from "@/components/ui/input";
+import {Checkbox} from "@/components/ui/checkbox";
 
 
 export function ProjectList({ limit = 10, showSearchInput = false, onlyShowOwnProjects = false } : ProjectListProps ) {
@@ -14,6 +15,8 @@ export function ProjectList({ limit = 10, showSearchInput = false, onlyShowOwnPr
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
+  const [onlyOwnProjectsFilter, setOnlyOwnProjectsFilter] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   useEffect(() => {
     if (!user) {
@@ -33,22 +36,42 @@ export function ProjectList({ limit = 10, showSearchInput = false, onlyShowOwnPr
       .finally(() => setLoading(false))
   }, [user, limit, onlyShowOwnProjects]);
 
+  const applyFilters = () => {
+    setFilteredProjects(
+      projects.filter(project => (!onlyOwnProjectsFilter || project.isOwnProject) &&
+      project.name.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+  }
+
+  useEffect(() => {
+    applyFilters();
+  }, [searchTerm, onlyOwnProjectsFilter, projects]);
+
   const handleSearchFiltering = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFilteredProjects(() => projects.filter((project) =>
-      project.name.toLowerCase().includes(e.target.value.toLowerCase())
-    ));
+    setSearchTerm(e.target.value);
+  }
+
+  const handleOnlyOwnProjectsFilter = (checked: boolean) => {
+    setOnlyOwnProjectsFilter(checked);
   }
 
   return (
     <div className="flex flex-col gap-4">
 
       { showSearchInput && (
-        <div className="w-full pr-0 sm:w-1/3 md:w-1/4 sm:pr-2 md:pr-2 ">
-          <Input placeholder="Search projects..." onChange={handleSearchFiltering}/>
+        <div className="w-full lg:w-1/2 flex sm:flex-row flex-col gap-4 items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Input placeholder="Search projects..." onChange={handleSearchFiltering} />
+            <Checkbox onCheckedChange={handleOnlyOwnProjectsFilter} />
+            <span className="text-xs text-muted-foreground">Only show own projects</span>
+          </div>
+          <span className="text-xs text-muted-foreground text-right">
+            {filteredProjects.length} of {projects.length} projects
+          </span>
         </div>)
       }
 
-      <div className="grid grid-cols-1 md:grid-cols-4 sm:grid-cols-3 gap-4 items-stretch auto-rows-fr">
+      <div className="grid grid-cols-1 lg:grid-cols-4 sm:grid-cols-3 gap-4 items-stretch auto-rows-fr">
         {loading && <p>Fetching projects...</p>}
         {!loading && error.length > 0 && <p>{error}</p>}
         {!loading && error.length === 0 && filteredProjects.length === 0 && <p>No projects to show</p>}
