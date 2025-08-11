@@ -71,7 +71,20 @@ class ProjectController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $owner = Auth::guard('web')->user();
+        if (!$owner) {
+            abort(403);
+        }
+        $project = Project::find($id);
+        if (!$project) {
+            abort(404);
+        }
+        if ($project->owner_id !== $owner->id && !$project->is_public) {
+            abort(403);
+        }
+        $project->makeHidden(['owner_id']);
+        $project->isOwnProject = $owner->id === $project->owner_id;
+        return response()->json($project);
     }
 
     /**

@@ -7,12 +7,12 @@ import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, Form
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import axios, {AxiosError} from "axios";
-import {useState} from "react";
+import React, {useState} from "react";
 import {Alert, AlertTitle} from "@/components/ui/alert";
 import {Textarea} from "@/components/ui/textarea";
 import {useRouter} from "next/navigation";
 import {Checkbox} from "@/components/ui/checkbox";
-import {ErrorResponse} from "@/lib/types";
+import {ErrorResponse, ProjectFormProps} from "@/lib/types";
 
 const formSchema = z.object({
   name: z.string().nonempty().min(3, "Name must be at least three letters long"),
@@ -21,7 +21,7 @@ const formSchema = z.object({
   isPublic: z.boolean(),
 });
 
-export function ProjectForm() {
+export function ProjectForm({ isEdit = false, project = undefined } : ProjectFormProps) {
   const [alert, setAlert] = useState<string>("");
   const [success, setSuccess] = useState<boolean>(false);
   const router = useRouter();
@@ -29,10 +29,10 @@ export function ProjectForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      description: "",
-      projectCode: "",
-      isPublic: true,
+      name: project?.name || "",
+      description: project?.description || "",
+      projectCode: project?.project_code || "",
+      isPublic: project?.is_public === undefined ? true : project.is_public,
     },
   });
 
@@ -73,6 +73,11 @@ export function ProjectForm() {
             }
           });
       })
+  }
+
+  const handleCancel = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    router.back();
   }
 
   return (
@@ -148,7 +153,10 @@ export function ProjectForm() {
                 <FormMessage/>
               </FormItem>
             )}/>
-          <Button type="submit">Submit</Button>
+          <div className="flex gap-4">
+            <Button type="submit">{isEdit ? "Update" : "Create"} Project</Button>
+            <Button variant={"secondary"} onClick={handleCancel}>Go back</Button>
+          </div>
         </form>
       </Form>
     </div>
