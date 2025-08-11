@@ -12,3 +12,12 @@ export interface ProjectListProps {
   onlyShowOwnProjects?: boolean;
   showSearchInput?: boolean;
 }
+
+export type ErrorResponse = {
+  error: {
+    message: string;
+    details: {
+      [key: string]: string[];
+    };
+  };
+} | undefined;

@@ -12,6 +12,7 @@ import {Alert, AlertTitle} from "@/components/ui/alert";
 import {Textarea} from "@/components/ui/textarea";
 import {useRouter} from "next/navigation";
 import {Checkbox} from "@/components/ui/checkbox";
+import {ErrorResponse} from "@/lib/types";
 
 const formSchema = z.object({
   name: z.string().nonempty().min(3, "Name must be at least three letters long"),
@@ -53,10 +54,22 @@ export function ProjectForm() {
             form.reset();
             router.push("/dashboard");
           })
-          .catch((err: AxiosError) => {
-            if (err.status === 422) {
+          .catch((err: AxiosError<ErrorResponse>) => {
+            const errorData: ErrorResponse = err.response?.data;
+            if (err.status === 422 || err.status === 400) {
+              if (errorData) {
+                let alertMsg = errorData.error?.message || "Something went wrong. Try again.";
+                if (errorData.error?.details) {
+                  for (const detail of Object.keys(errorData.error.details)) {
+                    alertMsg += ` ${errorData.error.details[detail]}`;
+                  }
+                }
+                setSuccess(false);
+                setAlert(alertMsg);
+              }
+            } else {
               setSuccess(false);
-              setAlert("Something went wrong. Try again.")
+              setAlert("A server error or other error occurred. Please try again later.")
             }
           });
       })
