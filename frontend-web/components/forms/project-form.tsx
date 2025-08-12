@@ -37,42 +37,83 @@ export function ProjectForm({ isEdit = false, project = undefined } : ProjectFor
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    axios.get(`${process.env.NEXT_PUBLIC_API_URL}/sanctum/csrf-cookie`, {withCredentials: true})
-      .then(() => {
-        axios.post("/api/proxy/v1/project", {
-          name: values.name,
-          description: values.description,
-          project_code: values.projectCode,
-          is_public: values.isPublic,
-        }, {
-          withCredentials: true,
-          withXSRFToken: true,
-        })
-          .then(() => {
-            setAlert("Project created successfully");
-            setSuccess(true);
-            form.reset();
-            router.push("/dashboard");
+    if (!isEdit) {
+      axios.get(`${process.env.NEXT_PUBLIC_API_URL}/sanctum/csrf-cookie`, {withCredentials: true})
+        .then(() => {
+          axios.post("/api/proxy/v1/project", {
+            name: values.name,
+            description: values.description,
+            project_code: values.projectCode,
+            is_public: values.isPublic,
+          }, {
+            withCredentials: true,
+            withXSRFToken: true,
           })
-          .catch((err: AxiosError<ErrorResponse>) => {
-            const errorData: ErrorResponse = err.response?.data;
-            if (err.status === 422 || err.status === 400) {
-              if (errorData) {
-                let alertMsg = errorData.error?.message || "Something went wrong. Try again.";
-                if (errorData.error?.details) {
-                  for (const detail of Object.keys(errorData.error.details)) {
-                    alertMsg += ` ${errorData.error.details[detail]}`;
+            .then(() => {
+              setAlert("Project created successfully");
+              setSuccess(true);
+              form.reset();
+              router.push("/dashboard");
+            })
+            .catch((err: AxiosError<ErrorResponse>) => {
+              const errorData: ErrorResponse = err.response?.data;
+              if (err.status === 422 || err.status === 400) {
+                if (errorData) {
+                  let alertMsg = errorData.error?.message || "Something went wrong. Try again.";
+                  if (errorData.error?.details) {
+                    for (const detail of Object.keys(errorData.error.details)) {
+                      alertMsg += ` ${errorData.error.details[detail]}`;
+                    }
                   }
+                  setSuccess(false);
+                  setAlert(alertMsg);
                 }
+              } else {
                 setSuccess(false);
-                setAlert(alertMsg);
+                setAlert("A server error or other error occurred. Please try again later.")
               }
-            } else {
-              setSuccess(false);
-              setAlert("A server error or other error occurred. Please try again later.")
-            }
-          });
-      })
+            });
+        })
+    } else {
+      axios.get(`${process.env.NEXT_PUBLIC_API_URL}/sanctum/csrf-cookie`, {withCredentials: true})
+        .then(() => {
+          axios.put(`/api/proxy/v1/project/${project?.id}`, {
+            name: values.name,
+            description: values.description,
+            project_code: values.projectCode,
+            is_public: values.isPublic,
+          }, {
+            withCredentials: true,
+            withXSRFToken: true,
+          })
+            .then(() => {
+              setAlert("Project updated successfully");
+              setSuccess(true);
+              form.reset();
+              router.push("/dashboard");
+            })
+            .catch((err: AxiosError<ErrorResponse>) => {
+              const errorData: ErrorResponse = err.response?.data;
+              if (err.status === 422 || err.status === 400) {
+                if (errorData) {
+                  let alertMsg = errorData.error?.message || "Something went wrong. Try again.";
+                  if (errorData.error?.details) {
+                    for (const detail of Object.keys(errorData.error.details)) {
+                      alertMsg += ` ${errorData.error.details[detail]}`;
+                    }
+                  }
+                  setSuccess(false);
+                  setAlert(alertMsg);
+                }
+              } else {
+                setSuccess(false);
+                setAlert("A server error or other error occurred. Please try again later.")
+              }
+            });
+        })
+    }
+
+
   }
 
   const handleCancel = (event: React.MouseEvent<HTMLButtonElement>) => {

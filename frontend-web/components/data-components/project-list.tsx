@@ -7,6 +7,8 @@ import {Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle} f
 import { Project, ProjectListProps} from "@/lib/types";
 import {Input} from "@/components/ui/input";
 import {Checkbox} from "@/components/ui/checkbox";
+import Link from "next/link";
+import {PenIcon} from "lucide-react";
 
 
 export function ProjectList({ limit = 10, showSearchInput = false, onlyShowOwnProjects = false } : ProjectListProps ) {
@@ -38,8 +40,8 @@ export function ProjectList({ limit = 10, showSearchInput = false, onlyShowOwnPr
 
   const applyFilters = () => {
     setFilteredProjects(
-      projects.filter(project => (!onlyOwnProjectsFilter || project.isOwnProject) &&
-      project.name.toLowerCase().includes(searchTerm.toLowerCase()))
+      projects.filter(project => (!onlyOwnProjectsFilter || project?.isOwnProject) &&
+      project?.name.toLowerCase().includes(searchTerm.toLowerCase()))
     );
   }
 
@@ -76,23 +78,24 @@ export function ProjectList({ limit = 10, showSearchInput = false, onlyShowOwnPr
         {!loading && error.length > 0 && <p>{error}</p>}
         {!loading && error.length === 0 && filteredProjects.length === 0 && <p>No projects to show</p>}
         {filteredProjects.map((project, index) => (
-          <Card key={index} className={!project.isOwnProject ? "bg-secondary" : ""}>
+          <Card key={index} className={!project?.isOwnProject ? "bg-secondary" : ""}>
             <CardHeader>
               <CardTitle>
                 <h4 className="font-semibold">
-                  {project.name}
+                  {project?.name}
                 </h4>
-                <span className="text-xs font-normal">{project.project_code}</span>
+                <span className="text-xs font-normal">{project?.project_code}</span>
               </CardTitle>
               <CardAction>
-
+                {project?.isOwnProject && (<Link href={`/dashboard/project/${project?.id}/edit`} className="text-sm">
+                  <PenIcon size={16} /> Edit</Link>)}
               </CardAction>
             </CardHeader>
             <CardContent>
 
               <CardDescription>
                 <p className="text-sm">
-                  {project.description}
+                  {project?.description}
                 </p>
               </CardDescription>
             </CardContent>

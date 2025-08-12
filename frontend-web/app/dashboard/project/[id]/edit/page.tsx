@@ -31,6 +31,7 @@ export default function EditProjectPage() {
             project_code: res.data.project_code,
             is_public: res.data.is_public === 1,
             isOwnProject: res.data.isOwnProject,
+            id: res.data.id,
           });
 
         })

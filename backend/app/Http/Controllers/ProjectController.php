@@ -47,7 +47,7 @@ class ProjectController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|min:3',
-            'project_code' => 'max:32|unique:projects,project_code',
+            'project_code' => 'nullable|max:32|unique:projects,project_code',
             'is_public' => 'boolean',
         ]);
 
@@ -92,7 +92,30 @@ class ProjectController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $owner = Auth::guard('web')->user();
+        if (!$owner) {
+            abort(403);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|min:3',
+            'project_code' => 'max:32',
+            'is_public' => 'boolean',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+
+        $project = Project::find($id);
+        if (!$project) {
+            abort(404);
+        }
+        if ($project->owner_id !== $owner->id) {
+            abort(403);
+        }
+        $project->update($request->all());
+        return response()->json("Project updated successfully");
     }
 
     /**

@@ -5,6 +5,7 @@ export type Project = {
   description: string;
   project_code: string;
   isOwnProject: boolean;
+  id: number;
   is_public?: boolean;
 } | null;
 
