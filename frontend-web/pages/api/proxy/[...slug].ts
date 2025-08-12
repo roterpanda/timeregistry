@@ -4,13 +4,13 @@ import axios from "axios";
 
 const allowedEndpoints: string[] = [
   "v1/user",
-  "v1/project"
+  "v1/project",
 ];
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const slugParts = req.query.slug;
   const rawEndpoint = Array.isArray(slugParts) ? slugParts.join("/") : slugParts || "";
-  const endpoint = allowedEndpoints.includes(rawEndpoint) ? rawEndpoint : null;
+  const endpoint = allowedEndpoints.filter((val) => rawEndpoint.startsWith(val)).length === 1 ? rawEndpoint : null;
   if (!endpoint) {
     res.status(400).json({error: {message: "Invalid endpoint"}});
     return;

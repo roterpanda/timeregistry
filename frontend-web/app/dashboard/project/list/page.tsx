@@ -8,7 +8,7 @@ export default function ProjectListPage() {
   return (
     <div className="w-full mx-auto p-6 space-y-6">
       <h1 className="text-3xl font-bold">
-        Your projects
+        All projects
       </h1>
 
       <div className="flex space-x-4">

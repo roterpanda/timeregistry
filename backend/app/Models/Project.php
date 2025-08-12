@@ -17,6 +17,8 @@ class Project extends Model
         'name',
         'description',
         'owner_id',
+        'project_code',
+        'is_public',
     ];
 
     public function owner(): BelongsTo {

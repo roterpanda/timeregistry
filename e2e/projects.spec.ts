@@ -43,7 +43,7 @@ test.describe("Projects", () => {
     await projectDesc.click();
     await projectDesc.fill("Test project description");
 
-    await page.getByRole("button", { name: "Submit" }).click();
+    await page.getByRole("button", { name: "Create Project" }).click();
 
     await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
     await expect(page.getByText('Test project 123')).toBeVisible();
@@ -51,7 +51,7 @@ test.describe("Projects", () => {
     await page.request.get("http://localhost:8000/sanctum/csrf-cookie");
 
     await page.goto('/dashboard/project/list');
-    await expect(page.getByRole('heading', { name: 'Your projects' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'All projects' })).toBeVisible();
     await expect(page.getByText('Test project 123')).toBeVisible();
 
     const searchProject = page.getByPlaceholder("Search projects...");
