@@ -3,12 +3,12 @@
 import React, {useEffect, useState} from "react";
 import {useAuth} from "@/lib/authContext";
 import axios from "axios";
-import {Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
+import {Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
 import {Project, ProjectListProps} from "@/lib/types";
 import {Input} from "@/components/ui/input";
 import {Checkbox} from "@/components/ui/checkbox";
 import Link from "next/link";
-import {PenIcon, TrashIcon} from "lucide-react";
+import {PenIcon} from "lucide-react";
 import {Button} from "@/components/ui/button";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
 import {
@@ -16,7 +16,6 @@ import {
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
 
 
@@ -81,10 +80,8 @@ export function ProjectList({limit = 10, showSearchInput = false, onlyShowOwnPro
       setOpenMenuId(null)
     }
   }
-
   return (
     <div className="flex flex-col gap-4">
-
       {showSearchInput && (
         <div className="w-full lg:w-1/2 flex sm:flex-row flex-col gap-4 items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -97,7 +94,6 @@ export function ProjectList({limit = 10, showSearchInput = false, onlyShowOwnPro
           </span>
         </div>)
       }
-
       <div className="grid grid-cols-1 lg:grid-cols-4 sm:grid-cols-3 gap-4 items-stretch auto-rows-fr">
         {loading && <p>Fetching projects...</p>}
         {!loading && error.length > 0 && <p>{error}</p>}
@@ -128,18 +124,14 @@ export function ProjectList({limit = 10, showSearchInput = false, onlyShowOwnPro
                         e.preventDefault();
                         e.stopPropagation()
                         setOpenMenuId(null);
-
                         setSelectedProjectId(project?.id);
                         setDeleteDialogOpen(true);
                       }}>
                         Delete
                       </DropdownMenuItem>
-
-
                     </DropdownMenuContent>
                   </DropdownMenu>
                 )}
-
               </CardAction>
             </CardHeader>
             <CardContent>
@@ -151,12 +143,9 @@ export function ProjectList({limit = 10, showSearchInput = false, onlyShowOwnPro
             </CardContent>
           </Card>
         ))}
-
       </div>
-
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent onOpenAutoFocus={(e) => e.preventDefault()}
-                            onCloseAutoFocus={(e) => e.preventDefault()}>
+        <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Do you really want to delete this project?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -165,8 +154,8 @@ export function ProjectList({limit = 10, showSearchInput = false, onlyShowOwnPro
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => {
-              if (selectedProjectId) handleDeleteProject(selectedProjectId);
+            <AlertDialogAction onClick={async () => {
+              if (selectedProjectId) await handleDeleteProject(selectedProjectId);
             }}>Continue</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
