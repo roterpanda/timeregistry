@@ -10,6 +10,7 @@ export default function MenuBar() {
   const {isAuthenticated, user, logout} = useAuth();
 
   const handleLogout = async () => {
+    await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/sanctum/csrf-cookie`, { withCredentials: true });
     await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/logout`,"", { withCredentials: true, withXSRFToken: true });
     logout();
   };

@@ -3,12 +3,13 @@
 import React, {useEffect, useState} from "react";
 import {useAuth} from "@/lib/authContext";
 import axios from "axios";
-import {Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
+import {Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
 import { Project, ProjectListProps} from "@/lib/types";
 import {Input} from "@/components/ui/input";
 import {Checkbox} from "@/components/ui/checkbox";
 import Link from "next/link";
-import {PenIcon} from "lucide-react";
+import {PenIcon, TrashIcon} from "lucide-react";
+import {Button} from "@/components/ui/button";
 
 
 export function ProjectList({ limit = 10, showSearchInput = false, onlyShowOwnProjects = false } : ProjectListProps ) {
@@ -57,6 +58,17 @@ export function ProjectList({ limit = 10, showSearchInput = false, onlyShowOwnPr
     setOnlyOwnProjectsFilter(checked);
   }
 
+  const handleDeleteProject = (projectId: number) => {
+    axios.delete(`/api/proxy/v1/project/${projectId}`)
+      .then((res) => {
+        setProjects((oldProjectList) => [...oldProjectList.filter(project => project?.id !== projectId)])
+      })
+      .catch(() => {
+        setError("Could not delete project.");
+      })
+      .finally(() => setLoading(false))
+  }
+
   return (
     <div className="flex flex-col gap-4">
 
@@ -86,13 +98,16 @@ export function ProjectList({ limit = 10, showSearchInput = false, onlyShowOwnPr
                 </h4>
                 <span className="text-xs font-normal">{project?.project_code}</span>
               </CardTitle>
-              <CardAction>
+              <CardAction className="flex gap-2">
                 {project?.isOwnProject && (<Link href={`/dashboard/project/${project?.id}/edit`} className="text-sm">
                   <PenIcon size={16} /> Edit</Link>)}
+                {project?.isOwnProject && (
+                <Button variant={"outline"} onClick={() => handleDeleteProject(project?.id)}>
+                  <TrashIcon size={16} />
+                </Button>)}
               </CardAction>
             </CardHeader>
             <CardContent>
-
               <CardDescription>
                 <p className="text-sm">
                   {project?.description}

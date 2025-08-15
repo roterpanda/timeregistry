@@ -123,6 +123,18 @@ class ProjectController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $owner = Auth::guard('web')->user();
+        if (!$owner) {
+            abort(403);
+        }
+        $project = Project::find($id);
+        if (!$project) {
+            abort(404);
+        }
+        if ($project->owner_id !== $owner->id) {
+            abort(403);
+        }
+        $project->delete();
+        return response()->json("Project deleted successfully");
     }
 }
