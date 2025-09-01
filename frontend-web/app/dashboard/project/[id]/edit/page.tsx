@@ -4,7 +4,6 @@ import {useParams} from "next/navigation";
 import {ProjectForm} from "@/components/forms/project-form";
 import {useEffect, useState} from "react";
 import axios from "axios";
-import {useAuth} from "@/lib/authContext";
 import {Project} from "@/lib/types";
 
 
@@ -16,11 +15,7 @@ export default function EditProjectPage() {
 
   const projectId = parseInt(params?.id as string) || 0;
 
-  if (projectId < 1) return (
-    <div>
-      Invalid project id.
-    </div>
-  );
+
 
   useEffect(() => {
     axios.get(`/api/proxy/v1/project/${projectId}`)
@@ -43,6 +38,11 @@ export default function EditProjectPage() {
       })
   }, [projectId]);
 
+  if (projectId < 1) return (
+    <div>
+      Invalid project id.
+    </div>
+  );
 
   if (loading) return (<div>Loading...</div>);
   if (error.length > 0) return (<div>{error}</div>);
