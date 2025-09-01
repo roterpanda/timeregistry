@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class ProjectController extends Controller
@@ -17,7 +16,7 @@ class ProjectController extends Controller
     {
         $owner = Auth::guard('web')->user();
         if (!$owner) {
-            abort(403);
+            return response()->json("Unauthorized", 401);
         }
         $limit = intval($request->query('limit', 10));
         $onlyOwn = $request->query('onlyOwn') === 'true';
@@ -73,14 +72,14 @@ class ProjectController extends Controller
     {
         $owner = Auth::guard('web')->user();
         if (!$owner) {
-            abort(403);
+            return response()->json("Unauthorized", 401);
         }
         $project = Project::find($id);
         if (!$project) {
-            abort(404);
+            return response()->json("Project not found", 404);
         }
-        if ($project->owner_id !== $owner->id && !$project->is_public) {
-            abort(403);
+        if ($project->owner_id !== $owner->id) {
+            return response()->json("Unauthorized", 403);
         }
         $project->makeHidden(['owner_id']);
         $project->isOwnProject = $owner->id === $project->owner_id;
@@ -125,14 +124,14 @@ class ProjectController extends Controller
     {
         $owner = Auth::guard('web')->user();
         if (!$owner) {
-            abort(403);
+            return response()->json("Unauthorized", 401);
         }
         $project = Project::find($id);
         if (!$project) {
-            abort(404);
+            return response()->json("Project not found", 404);
         }
         if ($project->owner_id !== $owner->id) {
-            abort(403);
+            return response()->json("Unauthorized", 403);
         }
         $project->delete();
         return response()->json("Project deleted successfully");
