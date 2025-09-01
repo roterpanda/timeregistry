@@ -4,13 +4,11 @@ import {useParams} from "next/navigation";
 import {ProjectForm} from "@/components/forms/project-form";
 import {useEffect, useState} from "react";
 import axios from "axios";
-import {useAuth} from "@/lib/authContext";
 import {Project} from "@/lib/types";
 
 
 export default function EditProjectPage() {
   const params = useParams();
-  const {user} = useAuth();
   const [loading, setLoading] = useState<boolean>(true);
   const [project, setProject] = useState<Project>(null);
   const [error, setError] = useState<string>("");
@@ -18,32 +16,29 @@ export default function EditProjectPage() {
   const projectId = parseInt(params?.id as string) || 0;
 
 
-    useEffect(() => {
-      if (!user) {
+
+  useEffect(() => {
+    axios.get(`/api/proxy/v1/project/${projectId}`)
+      .then((res) => {
+        setProject({
+          name: res.data.name,
+          description: res.data.description,
+          project_code: res.data.project_code,
+          is_public: res.data.is_public === 1,
+          isOwnProject: res.data.isOwnProject,
+          id: res.data.id,
+        });
+
+      })
+      .catch(() => {
+        setError("Could not fetch the project information");
+      })
+      .finally(() => {
         setLoading(false);
-        return;
-      }
-      axios.get(`/api/proxy/v1/project/${projectId}`)
-        .then((res) => {
-          setProject({
-            name: res.data.name,
-            description: res.data.description,
-            project_code: res.data.project_code,
-            is_public: res.data.is_public === 1,
-            isOwnProject: res.data.isOwnProject,
-            id: res.data.id,
-          });
+      })
+  }, [projectId]);
 
-        })
-        .catch(() => {
-          setError("Could not fetch the project information");
-        })
-        .finally(() => {
-          setLoading(false);
-        })
-    }, [user, projectId]);
-
-  if (projectId === 0) return (
+  if (projectId < 1) return (
     <div>
       Invalid project id.
     </div>
@@ -57,7 +52,7 @@ export default function EditProjectPage() {
       <h1 className="text-2xl">
         Edit a project
       </h1>
-      <ProjectForm isEdit={true} project={project} />
+      <ProjectForm isEdit={true} project={project}/>
     </div>
   )
 

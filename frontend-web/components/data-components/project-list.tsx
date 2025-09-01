@@ -4,14 +4,22 @@ import React, {useEffect, useState} from "react";
 import {useAuth} from "@/lib/authContext";
 import axios from "axios";
 import {Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
-import { Project, ProjectListProps} from "@/lib/types";
+import {Project, ProjectListProps} from "@/lib/types";
 import {Input} from "@/components/ui/input";
 import {Checkbox} from "@/components/ui/checkbox";
 import Link from "next/link";
 import {PenIcon} from "lucide-react";
+import {Button} from "@/components/ui/button";
+import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 
-export function ProjectList({ limit = 10, showSearchInput = false, onlyShowOwnProjects = false } : ProjectListProps ) {
+export function ProjectList({limit = 10, showSearchInput = false, onlyShowOwnProjects = false}: ProjectListProps) {
   const {user} = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
@@ -19,6 +27,9 @@ export function ProjectList({ limit = 10, showSearchInput = false, onlyShowOwnPr
   const [error, setError] = useState<string>("");
   const [onlyOwnProjectsFilter, setOnlyOwnProjectsFilter] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null)
+  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -41,7 +52,7 @@ export function ProjectList({ limit = 10, showSearchInput = false, onlyShowOwnPr
   const applyFilters = () => {
     setFilteredProjects(
       projects.filter(project => (!onlyOwnProjectsFilter || project?.isOwnProject) &&
-      project?.name.toLowerCase().includes(searchTerm.toLowerCase()))
+        project?.name.toLowerCase().includes(searchTerm.toLowerCase()))
     );
   }
 
@@ -57,14 +68,25 @@ export function ProjectList({ limit = 10, showSearchInput = false, onlyShowOwnPr
     setOnlyOwnProjectsFilter(checked);
   }
 
+  const handleDeleteProject = async (projectId: number) => {
+    try {
+      await axios.delete(`/api/proxy/v1/project/${projectId}`)
+      setProjects((oldProjectList) => [...oldProjectList.filter(project => project?.id !== projectId)]);
+    } catch (error) {
+      setError("Could not delete the project.");
+    } finally {
+      setDeleteDialogOpen(false)
+      setSelectedProjectId(null)
+      setOpenMenuId(null)
+    }
+  }
   return (
     <div className="flex flex-col gap-4">
-
-      { showSearchInput && (
+      {showSearchInput && (
         <div className="w-full lg:w-1/2 flex sm:flex-row flex-col gap-4 items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Input placeholder="Search projects..." onChange={handleSearchFiltering} />
-            <Checkbox onCheckedChange={handleOnlyOwnProjectsFilter} />
+            <Input placeholder="Search projects..." onChange={handleSearchFiltering}/>
+            <Checkbox onCheckedChange={handleOnlyOwnProjectsFilter}/>
             <span className="text-xs text-muted-foreground">Only show own projects</span>
           </div>
           <span className="text-xs text-muted-foreground text-right">
@@ -72,7 +94,6 @@ export function ProjectList({ limit = 10, showSearchInput = false, onlyShowOwnPr
           </span>
         </div>)
       }
-
       <div className="grid grid-cols-1 lg:grid-cols-4 sm:grid-cols-3 gap-4 items-stretch auto-rows-fr">
         {loading && <p>Fetching projects...</p>}
         {!loading && error.length > 0 && <p>{error}</p>}
@@ -86,13 +107,34 @@ export function ProjectList({ limit = 10, showSearchInput = false, onlyShowOwnPr
                 </h4>
                 <span className="text-xs font-normal">{project?.project_code}</span>
               </CardTitle>
-              <CardAction>
-                {project?.isOwnProject && (<Link href={`/dashboard/project/${project?.id}/edit`} className="text-sm">
-                  <PenIcon size={16} /> Edit</Link>)}
+              <CardAction className="flex gap-2">
+                {project?.isOwnProject && (
+                  <DropdownMenu open={openMenuId === project.id}
+                                onOpenChange={(isOpen) => setOpenMenuId(isOpen ? project.id : null)}>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline"><PenIcon/></Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem asChild>
+                        <Link href={`/dashboard/project/${project?.id}/edit`}>
+                          Edit
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation()
+                        setOpenMenuId(null);
+                        setSelectedProjectId(project?.id);
+                        setDeleteDialogOpen(true);
+                      }}>
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </CardAction>
             </CardHeader>
             <CardContent>
-
               <CardDescription>
                 <p className="text-sm">
                   {project?.description}
@@ -102,6 +144,22 @@ export function ProjectList({ limit = 10, showSearchInput = false, onlyShowOwnPr
           </Card>
         ))}
       </div>
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Do you really want to delete this project?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete your project and time registrations.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={async () => {
+              if (selectedProjectId) await handleDeleteProject(selectedProjectId);
+            }}>Continue</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
