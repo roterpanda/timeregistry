@@ -9,8 +9,8 @@ const allowedEndpoints: RegExp[] = [
 ];
 
 const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-if (!BACKEND_BASE_URL || !BACKEND_BASE_URL.startsWith('http')) {
-  throw new Error('Invalid BACKEND_BASE_URL configuration');
+if (!BACKEND_BASE_URL || !BACKEND_BASE_URL.startsWith("http")) {
+  throw new Error("Invalid BACKEND_BASE_URL configuration");
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
