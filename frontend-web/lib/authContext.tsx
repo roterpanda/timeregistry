@@ -2,6 +2,7 @@
 
 import React, {createContext, useContext, useEffect, useState} from "react";
 import axios from "axios";
+import api from "@/lib/axios";
 
 type User = {
   name: string;
@@ -24,7 +25,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
   useEffect(() => {
     axios.get(`${process.env.NEXT_PUBLIC_API_URL}/sanctum/csrf-cookie`, {withCredentials: true})
       .then(() => {
-        axios.get("/api/proxy/v1/user", {withCredentials: true, withXSRFToken: true})
+        api.get("/api/v1/user")
           .then((res) => {
             if (res.data) {
               setUser({name: res.data});

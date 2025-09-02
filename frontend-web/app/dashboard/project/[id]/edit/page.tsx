@@ -5,6 +5,7 @@ import {ProjectForm} from "@/components/forms/project-form";
 import {useEffect, useState} from "react";
 import axios from "axios";
 import {Project} from "@/lib/types";
+import api from "@/lib/axios";
 
 
 export default function EditProjectPage() {
@@ -18,7 +19,7 @@ export default function EditProjectPage() {
 
 
   useEffect(() => {
-    axios.get(`/api/proxy/v1/project/${projectId}`)
+    api.get(`/api/v1/project/${projectId}`)
       .then((res) => {
         setProject({
           name: res.data.name,
