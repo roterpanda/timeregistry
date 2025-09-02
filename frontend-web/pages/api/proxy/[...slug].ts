@@ -2,15 +2,17 @@ import {NextApiRequest, NextApiResponse} from "next";
 import {signRequest} from "@/lib/signRequest";
 import axios from "axios";
 
-const allowedEndpoints: string[] = [
-  "v1/user",
-  "v1/project",
+const allowedEndpoints: RegExp[] = [
+  /^v1\/user$/,
+  /^v1\/project$/,
+  /^v1\/project\/\d+/,
 ];
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const slugParts = req.query.slug;
   const rawEndpoint = Array.isArray(slugParts) ? slugParts.join("/") : slugParts || "";
-  const endpoint = allowedEndpoints.filter((val) => rawEndpoint.startsWith(val)).length === 1 ? rawEndpoint : null;
+  const isAllowedEndpoint = allowedEndpoints.some((val) => val.test(rawEndpoint));
+  const endpoint = isAllowedEndpoint ? rawEndpoint : null;
   if (!endpoint) {
     res.status(400).json({error: {message: "Invalid endpoint"}});
     return;
