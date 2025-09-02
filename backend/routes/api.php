@@ -13,9 +13,9 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::get('user', [UserResourcesController::class, 'getUserName'])
-        ->middleware(['verify.signature', 'auth:sanctum']);
+        ->middleware('auth:sanctum');
 
-    Route::apiResource('project', ProjectController::class)->middleware(['verify.signature', 'auth:sanctum']);
+    Route::apiResource('project', ProjectController::class)->middleware('auth:sanctum');
 
 });
 
