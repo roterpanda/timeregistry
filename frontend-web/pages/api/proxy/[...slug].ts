@@ -11,8 +11,19 @@ const allowedEndpoints: RegExp[] = [
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const slugParts = req.query.slug;
   const rawEndpoint = Array.isArray(slugParts) ? slugParts.join("/") : slugParts || "";
+
+  // SSRF mitigation: block path traversal, backslash, and percent-encoded variants
+  const forbiddenPatterns = [
+    /\.\./,          // path traversal
+    /\\/,            // backslash
+    /\/\//,          // double slash
+    /%2e/i,          // percent-encoded .
+    /%2f/i,          // percent-encoded /
+    /%5c/i           // percent-encoded \
+  ];
+  const hasForbidden = forbiddenPatterns.some((re) => re.test(rawEndpoint));
   const isAllowedEndpoint = allowedEndpoints.some((val) => val.test(rawEndpoint));
-  const endpoint = isAllowedEndpoint ? rawEndpoint : null;
+  const endpoint = isAllowedEndpoint && !hasForbidden ? rawEndpoint : null;
   if (!endpoint) {
     res.status(400).json({error: {message: "Invalid endpoint"}});
     return;
