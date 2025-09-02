@@ -13,6 +13,7 @@ import {Textarea} from "@/components/ui/textarea";
 import {useRouter} from "next/navigation";
 import {Checkbox} from "@/components/ui/checkbox";
 import {ErrorResponse, ProjectFormProps} from "@/lib/types";
+import api from "@/lib/axios";
 
 const formSchema = z.object({
   name: z.string().nonempty().min(3, "Name must be at least three letters long"),
@@ -40,14 +41,11 @@ export function ProjectForm({ isEdit = false, project = undefined } : ProjectFor
     if (!isEdit) {
       axios.get(`${process.env.NEXT_PUBLIC_API_URL}/sanctum/csrf-cookie`, {withCredentials: true})
         .then(() => {
-          axios.post("/api/proxy/v1/project", {
+          api.post("/api/v1/project", {
             name: values.name,
             description: values.description,
             project_code: values.projectCode,
             is_public: values.isPublic,
-          }, {
-            withCredentials: true,
-            withXSRFToken: true,
           })
             .then(() => {
               setAlert("Project created successfully");
@@ -77,14 +75,11 @@ export function ProjectForm({ isEdit = false, project = undefined } : ProjectFor
     } else {
       axios.get(`${process.env.NEXT_PUBLIC_API_URL}/sanctum/csrf-cookie`, {withCredentials: true})
         .then(() => {
-          axios.put(`/api/proxy/v1/project/${project?.id}`, {
+          api.put(`/api/v1/project/${project?.id}`, {
             name: values.name,
             description: values.description,
             project_code: values.projectCode,
             is_public: values.isPublic,
-          }, {
-            withCredentials: true,
-            withXSRFToken: true,
           })
             .then(() => {
               setAlert("Project updated successfully");
@@ -93,6 +88,7 @@ export function ProjectForm({ isEdit = false, project = undefined } : ProjectFor
               router.push("/dashboard");
             })
             .catch((err: AxiosError<ErrorResponse>) => {
+              console.log(err);
               const errorData: ErrorResponse = err.response?.data;
               if (err.status === 422 || err.status === 400) {
                 if (errorData) {

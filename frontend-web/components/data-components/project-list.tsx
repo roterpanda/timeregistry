@@ -2,7 +2,6 @@
 
 import React, {useEffect, useState} from "react";
 import {useAuth} from "@/lib/authContext";
-import axios from "axios";
 import {Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
 import {Project, ProjectListProps} from "@/lib/types";
 import {Input} from "@/components/ui/input";
@@ -17,6 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import api from "@/lib/axios";
 
 
 export function ProjectList({limit = 10, showSearchInput = false, onlyShowOwnProjects = false}: ProjectListProps) {
@@ -38,7 +38,7 @@ export function ProjectList({limit = 10, showSearchInput = false, onlyShowOwnPro
       setLoading(false);
       return;
     }
-    axios.get(`/api/proxy/v1/project?limit=${limit}&onlyOwn=${onlyShowOwnProjects}`)
+    api.get(`/api/v1/project?limit=${limit}&onlyOwn=${onlyShowOwnProjects}`)
       .then((res) => {
         setProjects(res.data);
         setFilteredProjects(res.data);
@@ -70,7 +70,7 @@ export function ProjectList({limit = 10, showSearchInput = false, onlyShowOwnPro
 
   const handleDeleteProject = async (projectId: number) => {
     try {
-      await axios.delete(`/api/proxy/v1/project/${projectId}`)
+      await api.delete(`/api/v1/project/${projectId}`)
       setProjects((oldProjectList) => [...oldProjectList.filter(project => project?.id !== projectId)]);
     } catch (error) {
       setError("Could not delete the project.");
