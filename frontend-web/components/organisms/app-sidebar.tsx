@@ -6,7 +6,7 @@ import {
   SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem
 } from "@/components/ui/sidebar";
-import {HomeIcon, LayoutListIcon} from "lucide-react";
+import {HomeIcon, LayoutListIcon, ListChecksIcon} from "lucide-react";
 
 
 const items = [
@@ -19,6 +19,11 @@ const items = [
     title: "Projects",
     url: "/dashboard/project/list",
     icon: LayoutListIcon,
+  },
+  {
+    title: "Time registrations",
+    url: "/dashboard/timeregistration/list",
+    icon: ListChecksIcon,
   }
 ];
 

@@ -3,7 +3,6 @@
 import {useParams} from "next/navigation";
 import {ProjectForm} from "@/components/forms/project-form";
 import {useEffect, useState} from "react";
-import axios from "axios";
 import {Project} from "@/lib/types";
 import api from "@/lib/axios";
 
