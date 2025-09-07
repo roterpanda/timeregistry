@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\API\UserResourcesController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\TimeRegistrationController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -16,6 +17,9 @@ Route::prefix('v1')->group(function () {
         ->middleware('auth:sanctum');
 
     Route::apiResource('project', ProjectController::class)->middleware('auth:sanctum');
+
+    Route::apiResource('timeregistration', TimeRegistrationController::class)->middleware('auth:sanctum');
+
 
 });
 
