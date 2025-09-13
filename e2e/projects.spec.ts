@@ -20,6 +20,8 @@ test.afterEach(() => {
 test.describe("Projects", () => {
 
   test("Create project, project listed on dashboard, search project", async ({ page }) => {
+    const randomProjectCode = Math.random().toString(36).substring(2, 7);
+
     const testUser = generateTestUser();
     createdUsers.push(testUser.email);
     await registerUser(page, testUser, "/register");
@@ -43,14 +45,20 @@ test.describe("Projects", () => {
     await projectDesc.click();
     await projectDesc.fill("Test project description");
 
+    const projectCode = page.getByPlaceholder("Project code");
+    await expect(projectCode).toBeVisible({ timeout: 5000 });
+    await expect(projectCode).toBeEnabled();
+    await projectCode.click();
+    await projectCode.fill(randomProjectCode);
+
     await page.getByRole("button", { name: "Create Project" }).click();
 
-    await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
     await expect(page.getByText('Test project 123')).toBeVisible();
 
     await page.request.get("http://localhost:8000/sanctum/csrf-cookie");
 
-    await page.goto('/dashboard/project/list');
+    await page.locator('button[data-slot="sidebar-trigger"]').click();
+    await page.getByRole("link", { name: "Projects" }).click();
     await expect(page.getByRole('heading', { name: 'All projects' })).toBeVisible();
     await expect(page.getByText('Test project 123')).toBeVisible();
 
@@ -58,7 +66,7 @@ test.describe("Projects", () => {
     await expect(searchProject).toBeVisible({ timeout: 5000 });
     await expect(searchProject).toBeEnabled();
     await searchProject.click();
-    await searchProject.fill("awa");
+    await searchProject.fill("jksjsfhjskhur");
     await expect(page.getByText('Test project 123')).not.toBeVisible();
 
 
