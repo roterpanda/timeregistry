@@ -16,7 +16,7 @@ class ProjectController extends Controller
     {
         $owner = Auth::guard('web')->user();
         if (!$owner) {
-            return response()->json("Unauthorized", 401);
+            return response()->json('Unauthorized', 401);
         }
         $limit = intval($request->query('limit', 10));
         $onlyOwn = $request->query('onlyOwn') === 'true';
@@ -51,7 +51,7 @@ class ProjectController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
+            return response()->json($validator->errors(), 422);
         }
 
         $project = Project::create([
@@ -72,14 +72,14 @@ class ProjectController extends Controller
     {
         $owner = Auth::guard('web')->user();
         if (!$owner) {
-            return response()->json("Unauthorized", 401);
+            return response()->json('Unauthenticated', 401);
         }
         $project = Project::find($id);
         if (!$project) {
-            return response()->json("Project not found", 404);
+            return response()->json('Project not found', 404);
         }
         if ($project->owner_id !== $owner->id) {
-            return response()->json("Unauthorized", 403);
+            return response()->json('Unauthorized', 403);
         }
         $project->makeHidden(['owner_id']);
         $project->isOwnProject = $owner->id === $project->owner_id;
@@ -93,7 +93,7 @@ class ProjectController extends Controller
     {
         $owner = Auth::guard('web')->user();
         if (!$owner) {
-            abort(403);
+            return response()->json('Unauthenticated', 401);
         }
 
         $validator = Validator::make($request->all(), [
@@ -103,18 +103,18 @@ class ProjectController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
+            return response()->json($validator->errors(), 422);
         }
 
         $project = Project::find($id);
         if (!$project) {
-            abort(404);
+            return response()->json('Project not found', 404);
         }
         if ($project->owner_id !== $owner->id) {
-            abort(403);
+            return response()->json('Unauthorized', 403);
         }
         $project->update($request->all());
-        return response()->json("Project updated successfully");
+        return response()->json('Project updated successfully');
     }
 
     /**
@@ -124,16 +124,16 @@ class ProjectController extends Controller
     {
         $owner = Auth::guard('web')->user();
         if (!$owner) {
-            return response()->json("Unauthorized", 401);
+            return response()->json('Unauthenticated', 401);
         }
         $project = Project::find($id);
         if (!$project) {
-            return response()->json("Project not found", 404);
+            return response()->json('Project not found', 404);
         }
         if ($project->owner_id !== $owner->id) {
-            return response()->json("Unauthorized", 403);
+            return response()->json('Unauthorized', 403);
         }
         $project->delete();
-        return response()->json("Project deleted successfully");
+        return response()->json('Project deleted successfully');
     }
 }
