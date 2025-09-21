@@ -11,7 +11,7 @@ export default function Dashboard() {
   const { user } = useAuth();
 
   return (
-      <div className="w-full mx-auto p-6 space-y-6">
+      <div className="w-full flex flex-col flex-1 mx-auto p-6 space-y-6">
         <h1 className="text-3xl font-bold">
           Dashboard
         </h1>
