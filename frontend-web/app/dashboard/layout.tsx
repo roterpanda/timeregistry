@@ -9,15 +9,17 @@ import {AppSidebar} from "@/components/organisms/app-sidebar";
 export default function DashboardLayout({ children } : { children: React.ReactNode }) {
   return (
     <RequireAuth>
-      <SidebarProvider defaultOpen={false} className="mb-auto">
+      <div className="flex flex-1 min-h-0">
+      <SidebarProvider defaultOpen={false} className="flex flex-1 min-h-0">
         <AppSidebar />
 
-        <main className="flex-1 p-6">
+        <main className="flex-1 min-h-0 p-6 flex flex-col overflow-auto">
           <SidebarTrigger />
           {children}
         </main>
 
       </SidebarProvider>
+      </div>
     </RequireAuth>
   );
 }
