@@ -7,7 +7,7 @@ import {ProjectList} from "@/components/data-components/project-list";
 import {columns, TimeRegistration} from "@/components/data-components/timereg-definitions";
 import {DataTable} from "@/components/data-components/data-table";
 import api from "@/lib/axios";
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 
 
 
@@ -28,6 +28,12 @@ export default function TimeRegistrationTablePage() {
       .finally(() => setLoading(false))
   }, []);
 
+  const metaData = useMemo(() => ({
+    updateData: (rowIndex: number, columnId: keyof TimeRegistration, value: unknown) => {
+      setTimeRegistrations((old) => old.map((row, i) => i === rowIndex ? {...row, [columnId]: value as any } : row))
+    },
+  }), []);
+
   return (
     <div className="w-full mx-auto p-6 space-y-6">
       <h1 className="text-3xl font-bold">
@@ -45,7 +51,7 @@ export default function TimeRegistrationTablePage() {
 
       {loading && <p>Loading...</p>}
       <div className="mt-8">
-        <DataTable columns={columns} data={timeRegistrations} />
+        <DataTable columns={columns} data={timeRegistrations} metaData={metaData}/>
       </div>
 
     </div>

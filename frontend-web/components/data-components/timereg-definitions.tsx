@@ -9,7 +9,17 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import {Button} from "@/components/ui/button";
-import {MoreHorizontal} from "lucide-react";
+import {BadgeX, Check, Cross, MoreHorizontal, X} from "lucide-react";
+import {Input} from "@/components/ui/input";
+import {RowData} from "@tanstack/table-core";
+import React, {useEffect} from "react";
+
+
+declare module "@tanstack/react-table" {
+  interface TableMeta<TData extends RowData> {
+    updateData: (rowIndex: number, columnId: keyof TData, value: unknown) => void;
+  }
+}
 
 export type ProjectShortened = {
   id: number
@@ -62,12 +72,54 @@ export const columns: ColumnDef<TimeRegistration>[] = [
   {
     accessorKey: "notes",
     header: "Notes",
+    cell: ({row, table}) => {
+      const original = (row.getValue("notes") as string) ?? "";
+      const [value, setValue] = React.useState<string>(original);
+      const dirty = value !== original;
+
+      useEffect(() => {
+        setValue(original);
+      }, [original, row.id]);
+
+      const save = () => {
+        table.options.meta?.updateData(row.index, "notes", value);
+      }
+      const discard = () => setValue(original);
+
+      const boxVisibility = dirty
+        ? "opacity-100"
+        : "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100";
+
+      return (
+        <div className="flex items-center space-x-2">
+          <Input
+            className="border-0 bg-transparent focus:ring-0 focus:ring-offset-0 shadow-none"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && dirty) save();
+              if (e.key === "Escape" && dirty) discard();
+            }}
+          />
+          <div
+            className={`pointer-events-none absolute bottom-1 right-1 z-10 flex gap-1 rounded-md border bg-background/90 p-1 shadow-sm transition-opacity ${boxVisibility}`}
+          >
+
+
+              <Button variant="ghost" onClick={(e) => {e.preventDefault();save();}} aria-label="Save" size={"icon"} className="pointer-events-auto"><Check className="h-4 w-4"/></Button>
+              <Button variant="ghost" onClick={(e) => {
+                e.preventDefault();
+                discard();
+              }} size={"icon"} className="pointer-events-auto"><X className="h4 w-4"/></Button>
+
+            </div>
+        </div>
+      )
+    }
   },
   {
     id: "actions",
     cell: ({row}) => {
-      const timeregistration = row.original;
-
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
