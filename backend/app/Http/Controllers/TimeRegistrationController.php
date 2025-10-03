@@ -29,6 +29,9 @@ class TimeRegistrationController extends Controller
         $validator = Validator::make($request->all(), [
             'project_id' => 'required|exists:projects,id',
             'duration' => 'required|numeric|min:0',
+            'kilometers' => 'nullable|numeric|min:0',
+            'description' => 'nullable|string',
+            'date' => 'required|date',
         ]);
 
         if ($validator->fails()) {
