@@ -13,6 +13,8 @@ import {useEffect, useMemo, useState} from "react";
 
 export default function TimeRegistrationTablePage() {
   const [timeRegistrations, setTimeRegistrations] = useState<TimeRegistration[]>([]);
+  const [editingRowId, setEditingRowId] = useState<number | null>(null);
+  const [editValues, setEditValues] = useState<Partial<TimeRegistration>>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
 
@@ -28,11 +30,15 @@ export default function TimeRegistrationTablePage() {
       .finally(() => setLoading(false))
   }, []);
 
-  const metaData = useMemo(() => ({
-    updateData: (rowIndex: number, columnId: keyof TimeRegistration, value: unknown) => {
-      setTimeRegistrations((old) => old.map((row, i) => i === rowIndex ? {...row, [columnId]: value as any } : row))
-    },
-  }), []);
+  const startEdit = (row: TimeRegistration) => {
+    setEditingRowId(row.id);
+    setEditValues(row);
+  }
+
+  const cancelEdit = () => {
+    setEditingRowId(null);
+    setEditValues({});
+  }
 
   return (
     <div className="w-full mx-auto p-6 space-y-6">
@@ -51,7 +57,7 @@ export default function TimeRegistrationTablePage() {
 
       {loading && <p>Loading...</p>}
       <div className="mt-8">
-        <DataTable columns={columns} data={timeRegistrations} metaData={metaData}/>
+        <DataTable columns={columns} data={timeRegistrations} metaData={{editingRowId, editValues, startEdit, cancelEdit}}/>
       </div>
 
     </div>
