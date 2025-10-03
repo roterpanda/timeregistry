@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -23,7 +24,7 @@ class TimeRegistrationController extends Controller
     {
         $user = Auth::guard('web')->user();
         if (!$user) {
-            return response()->json('Unauthorized', 401);
+            return response()->json('Unauthenticated', 401);
         }
         $validator = Validator::make($request->all(), [
             'project_id' => 'required|exists:projects,id',
@@ -32,6 +33,11 @@ class TimeRegistrationController extends Controller
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
+        }
+
+        $project = Project::find($request->project_id);
+        if (!$project || ($project->owner_id !== $user->id && !$project->is_public)) {
+            return response()->json('Unauthorized', 403);
         }
 
         $timeRegistration = $user->timeRegistrations()->create($request->all());
