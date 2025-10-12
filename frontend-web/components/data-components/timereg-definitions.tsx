@@ -46,9 +46,14 @@ export const columns: ColumnDef<TimeRegistration>[] = [
   {
     accessorKey: "date",
     header: "Date",
-    cell: ({row}) => {
+    cell: ({row, table}) => {
       const date: Date = new Date(row.getValue("date"));
       const formattedDate = date.toLocaleDateString();
+
+      {if (table.options.meta?.adding && row.original.id === 0) {
+        return (<Input type={"date"} placeholder={"Date"} name={"date"}/>);
+      }
+      }
 
       return <div>{formattedDate}</div>;
     },
@@ -56,9 +61,13 @@ export const columns: ColumnDef<TimeRegistration>[] = [
   {
     accessorKey: "duration",
     header: "Duration",
-    cell: ({row}) => {
+    cell: ({row, table}) => {
       const duration = parseFloat(row.getValue("duration"));
       const formattedDuration = duration.toFixed(2);
+
+      {if (table.options.meta?.adding && row.original.id === 0) {
+        return (<Input type={"number"} step={"0.25"} placeholder={"Duration"} name={"duration"}/>);
+      }}
 
       return <div>{formattedDuration}</div>;
     },
@@ -77,30 +86,27 @@ export const columns: ColumnDef<TimeRegistration>[] = [
   {
     accessorKey: "kilometers",
     header: "Kilometers",
+    cell: ({row, table}) => {
+      const kilometers = parseFloat(row.getValue("kilometers"));
+      const formattedKilometers = kilometers.toFixed(2);
+
+      {if (table.options.meta?.adding && row.original.id === 0) {
+        return (<Input type={"number"} step={"0.25"} placeholder={"Kilometers"} name={"kilometers"}/>);
+      }}
+      return <div>{formattedKilometers}</div>;
+    }
   },
   {
     accessorKey: "notes",
     header: "Notes",
     cell: ({row, table}) => {
-      const original = (row.getValue("notes") as string) ?? "";
-      const [value, setValue] = React.useState<string>(original);
-      const dirty = value !== original;
+      const notes = row.getValue("notes") as string;
 
-      const editing = table.options.meta?.editingRowId === row.original.id;
+      {if (table.options.meta?.adding && row.original.id === 0) {
+        return (<Input type={"text"} placeholder={"Notes"} name={"notes"}/>);
+      }}
+      return <div>{notes}</div>;
 
-      useEffect(() => {
-        setValue(original);
-      }, [original, row.id]);
-
-      const boxVisibility = dirty
-        ? "opacity-100"
-        : "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100";
-
-      return (
-        <div
-          className={`flex items-center space-x-2 ${editing ? "background: bg-amber-200" : "background: bg-transparent"}`}>
-        </div>
-      )
     }
   },
   {
