@@ -13,6 +13,7 @@ import {BadgeX, Check, Cross, MoreHorizontal, X} from "lucide-react";
 import {Input} from "@/components/ui/input";
 import {RowData} from "@tanstack/table-core";
 import React, {useEffect} from "react";
+import DataSelectbox from "@/components/data-components/data-selectbox";
 
 
 declare module "@tanstack/react-table" {
@@ -21,6 +22,8 @@ declare module "@tanstack/react-table" {
     editValues: Partial<TimeRegistration>;
     startEdit: (row: TimeRegistration) => void;
     cancelEdit: () => void;
+    cancelAdding: () => void;
+    adding: boolean;
   }
 }
 
@@ -63,7 +66,10 @@ export const columns: ColumnDef<TimeRegistration>[] = [
   {
     accessorKey: "project",
     header: "Project",
-    cell: ({row}) => {
+    cell: ({row, table}) => {
+      {if (table.options.meta?.adding && row.original.id === 0) {
+        return (<DataSelectbox dataUrl={"/api/v1/project"} dataIdKey={"id"} dataKey={"name"} placeholder={"Project"} />);
+      }}
       const projectName = row.original.project.name;
       return <div>{projectName}</div>;
     },
@@ -93,23 +99,6 @@ export const columns: ColumnDef<TimeRegistration>[] = [
       return (
         <div
           className={`flex items-center space-x-2 ${editing ? "background: bg-amber-200" : "background: bg-transparent"}`}>
-          <Input
-            className="border-0 bg-transparent focus:ring-0 focus:ring-offset-0 shadow-none"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            onKeyDown={(e) => {
-
-            }}
-          />
-          <div
-            className={`pointer-events-none absolute bottom-1 right-1 z-10 flex gap-1 rounded-md border bg-background/90 p-1 shadow-sm transition-opacity ${boxVisibility}`}
-          >
-            <Button variant="ghost" onClick={(e) => {
-              e.preventDefault()
-            }} aria-label="Save" size={"icon"} className="pointer-events-auto"><Check className="h-4 w-4"/></Button>
-
-
-          </div>
         </div>
       )
     }
@@ -134,7 +123,11 @@ export const columns: ColumnDef<TimeRegistration>[] = [
           </DropdownMenu>
           {table.options.meta?.editingRowId === row.original.id && (<Button variant="ghost" onClick={(e) => {
             table.options.meta?.cancelEdit();
-          }} size={"icon"} className="pointer-events-auto"><X className="h4 w-4"/></Button>)}</div>
+          }} size={"icon"} className="pointer-events-auto"><X className="h4 w-4"/></Button>)}
+          {table.options.meta?.adding && row.original.id === 0 && (<Button variant="ghost" onClick={(e) => {
+            table.options.meta?.cancelAdding();
+          }} size={"icon"} className="pointer-events-auto"><X className="h4 w-4"/></Button>)}
+        </div>
 
       )
     }

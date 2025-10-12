@@ -18,7 +18,7 @@ class ProjectController extends Controller
         if (!$owner) {
             return response()->json('Unauthorized', 401);
         }
-        $limit = intval($request->query('limit', 10));
+        $limit = intval($request->query('limit', 0));
         $onlyOwn = $request->query('onlyOwn') === 'true';
 
         $query = Project::orderBy('created_at', 'desc');
