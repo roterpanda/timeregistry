@@ -44,6 +44,7 @@ class TimeRegistrationController extends Controller
         }
 
         $timeRegistration = $user->timeRegistrations()->create($request->all());
+        $timeRegistration->load('project:id,name');
         return response()->json($timeRegistration, 201);
 
     }

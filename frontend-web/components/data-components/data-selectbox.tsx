@@ -7,6 +7,8 @@ interface DataSelectboxProps {
   dataIdKey: string;
   dataKey: string;
   placeholder: string;
+  value?: number;
+  onValueChange?: (value: string) => void;
 }
 
 export default function DataSelectbox(props: DataSelectboxProps) {
@@ -17,13 +19,14 @@ export default function DataSelectbox(props: DataSelectboxProps) {
     api.get(props.dataUrl).then((res) => setData(res.data)).finally(() => setLoading(false));
   }, [props.dataUrl]);
 
-  return (<div>{loading && <span>Loading...</span>}<Select>
+  return (<div>{loading && <span>Loading...</span>}
+    <Select value={props.value?.toString()} onValueChange={props.onValueChange}>
     <SelectTrigger>
       <SelectValue placeholder={props.placeholder ?? "Select an option"}/>
     </SelectTrigger>
     <SelectContent>
       {data.length > 0 && data.map((item: any) => (
-        <SelectItem value={item[props.dataIdKey]} key={item[props.dataIdKey]}>{item[props.dataKey]}</SelectItem>
+        <SelectItem value={item[props.dataIdKey].toString()} key={item[props.dataIdKey]}>{item[props.dataKey]}</SelectItem>
       ))}
     </SelectContent>
   </Select></div>);

@@ -14,6 +14,8 @@ import {Input} from "@/components/ui/input";
 import {RowData} from "@tanstack/table-core";
 import React, {useEffect} from "react";
 import DataSelectbox from "@/components/data-components/data-selectbox";
+import {z} from "zod";
+import {Controller, UseFormReturn} from "react-hook-form";
 
 
 declare module "@tanstack/react-table" {
@@ -23,7 +25,9 @@ declare module "@tanstack/react-table" {
     startEdit: (row: TimeRegistration) => void;
     cancelEdit: () => void;
     cancelAdding: () => void;
+    submitAdding: () => void;
     adding: boolean;
+    form?: UseFormReturn<TimeRegistrationFormData>;
   }
 }
 
@@ -42,19 +46,31 @@ export type TimeRegistration = {
   kilometers: number | null | undefined
 }
 
+export const timeRegistrationSchema = z.object({
+  date: z.string().min(1, "Date is required"),
+  duration: z.number().positive("Duration must be positive"),
+  project: z.number().min(1, "Project is required"),
+  kilometers: z.number().min(0, "Kilometers must be positive or zero"),
+  notes: z.string().optional(),
+});
+
+export type TimeRegistrationFormData = z.infer<typeof timeRegistrationSchema>;
+
 export const columns: ColumnDef<TimeRegistration>[] = [
   {
     accessorKey: "date",
     header: "Date",
     cell: ({row, table}) => {
+      if (table.options.meta?.adding && row.original.id === 0) {
+        const {register, formState: {errors}} = table.options.meta?.form!;
+        return (<div>
+          <Input type={"date"} {...register("date")} />
+          {errors.date && <p className="text-xs text-red-500">{errors.date.message as string}</p>}
+        </div>);
+      }
+
       const date: Date = new Date(row.getValue("date"));
       const formattedDate = date.toLocaleDateString();
-
-      {if (table.options.meta?.adding && row.original.id === 0) {
-        return (<Input type={"date"} placeholder={"Date"} name={"date"}/>);
-      }
-      }
-
       return <div>{formattedDate}</div>;
     },
   },
@@ -62,13 +78,22 @@ export const columns: ColumnDef<TimeRegistration>[] = [
     accessorKey: "duration",
     header: "Duration",
     cell: ({row, table}) => {
+      if (table.options.meta?.adding && row.original.id === 0) {
+        const {register, formState: {errors}} = table.options.meta?.form!;
+        return (
+          <div>
+            <Input
+              type="number"
+              step="0.25"
+              placeholder="0.00"
+              {...register("duration", { valueAsNumber: true })}
+            />
+            {errors.duration && <p className="text-xs text-red-500">{errors.duration.message as string}</p>}
+          </div>);
+      }
+
       const duration = parseFloat(row.getValue("duration"));
       const formattedDuration = duration.toFixed(2);
-
-      {if (table.options.meta?.adding && row.original.id === 0) {
-        return (<Input type={"number"} step={"0.25"} placeholder={"Duration"} name={"duration"}/>);
-      }}
-
       return <div>{formattedDuration}</div>;
     },
   },
@@ -76,9 +101,27 @@ export const columns: ColumnDef<TimeRegistration>[] = [
     accessorKey: "project",
     header: "Project",
     cell: ({row, table}) => {
-      {if (table.options.meta?.adding && row.original.id === 0) {
-        return (<DataSelectbox dataUrl={"/api/v1/project"} dataIdKey={"id"} dataKey={"name"} placeholder={"Project"} />);
-      }}
+      if (table.options.meta?.adding && row.original.id === 0) {
+        const {control, formState: {errors}} = table.options.meta.form!;
+        return (
+          <div>
+            <Controller
+              name="project"
+              control={control}
+              render={({field}) => (
+                <DataSelectbox
+                  dataUrl="/api/v1/project"
+                  dataIdKey="id"
+                  dataKey="name"
+                  placeholder="Project"
+                  value={field.value}
+                  onValueChange={(value) => field.onChange(Number(value))} />
+              )}
+            />
+            {errors.project && <p className="text-xs text-red-500">{errors.project.message as string}</p>}
+          </div>
+        )
+      }
       const projectName = row.original.project.name;
       return <div>{projectName}</div>;
     },
@@ -87,12 +130,22 @@ export const columns: ColumnDef<TimeRegistration>[] = [
     accessorKey: "kilometers",
     header: "Kilometers",
     cell: ({row, table}) => {
+      if (table.options.meta?.adding && row.original.id === 0) {
+        const {register, formState: {errors}} = table.options.meta?.form!;
+        return (
+          <div>
+            <Input
+              type="number"
+              step="0.25"
+              placeholder="0.00"
+              {...register("kilometers", { valueAsNumber: true })}
+            />
+            {errors.kilometers && <p className="text-xs text-red-500">{errors.kilometers.message as string}</p>}
+          </div>);
+      }
+
       const kilometers = parseFloat(row.getValue("kilometers"));
       const formattedKilometers = kilometers.toFixed(2);
-
-      {if (table.options.meta?.adding && row.original.id === 0) {
-        return (<Input type={"number"} step={"0.25"} placeholder={"Kilometers"} name={"kilometers"}/>);
-      }}
       return <div>{formattedKilometers}</div>;
     }
   },
@@ -130,9 +183,22 @@ export const columns: ColumnDef<TimeRegistration>[] = [
           {table.options.meta?.editingRowId === row.original.id && (<Button variant="ghost" onClick={(e) => {
             table.options.meta?.cancelEdit();
           }} size={"icon"} className="pointer-events-auto"><X className="h4 w-4"/></Button>)}
-          {table.options.meta?.adding && row.original.id === 0 && (<Button variant="ghost" onClick={(e) => {
-            table.options.meta?.cancelAdding();
-          }} size={"icon"} className="pointer-events-auto"><X className="h4 w-4"/></Button>)}
+          {table.options.meta?.adding && row.original.id === 0 && (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={table.options.meta?.submitAdding}
+              >
+                <Check className="h4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={(e) => table.options.meta?.cancelAdding()}>
+                <X className="h4 w-4"/>
+              </Button>
+            </>)}
         </div>
 
       )

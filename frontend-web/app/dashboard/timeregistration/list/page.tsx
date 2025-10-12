@@ -1,13 +1,18 @@
 "use client";
 
 import {Button} from "@/components/ui/button";
-import Link from "next/link";
 import {PlusCircleIcon } from "lucide-react";
-import {ProjectList} from "@/components/data-components/project-list";
-import {columns, TimeRegistration} from "@/components/data-components/timereg-definitions";
+import {
+  columns,
+  TimeRegistration,
+  TimeRegistrationFormData,
+  timeRegistrationSchema
+} from "@/components/data-components/timereg-definitions";
 import {DataTable} from "@/components/data-components/data-table";
 import api from "@/lib/axios";
 import {useEffect, useMemo, useState} from "react";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {useForm} from "react-hook-form";
 
 
 
@@ -18,6 +23,17 @@ export default function TimeRegistrationTablePage() {
   const [adding, setAdding] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
+
+  const form = useForm<TimeRegistrationFormData>({
+    resolver: zodResolver(timeRegistrationSchema),
+    defaultValues: {
+      date: "",
+      duration: 0,
+      project: 0,
+      kilometers: 0,
+      notes: "",
+    },
+  });
 
   useEffect(() => {
     api.get("/sanctum/csrf-cookie", { withCredentials: true });
@@ -41,8 +57,32 @@ export default function TimeRegistrationTablePage() {
     setEditValues({});
   }
 
+  const submitAdding = async (data: TimeRegistrationFormData) => {
+    try {
+      await api.get("/sanctum/csrf-cookie", { withCredentials: true });
+      const response = await api.post("/api/v1/timeregistration", {
+        date: data.date,
+        duration: data.duration,
+        project_id: data.project,
+        kilometers: data.kilometers,
+        description: data.notes,
+      });
+      setTimeRegistrations((prevState) => [response.data, ...prevState.filter((timereg) => timereg.id !== 0)]);
+      setAdding(false);
+      form.reset();
+    }
+    catch (error) {
+      console.error("Error adding time registration:", error);
+      setError("Error adding time registration");
+    }
+    finally {
+      setAdding(false);
+    }
+  }
+
   const cancelAdding = () => {
     setAdding(false);
+    form.reset();
     setTimeRegistrations((prevState) => prevState.filter((timereg) => timereg.id !== 0));
   }
 
@@ -66,7 +106,7 @@ export default function TimeRegistrationTablePage() {
 
       {loading && <p>Loading...</p>}
       <div className="mt-8">
-        <DataTable columns={columns} data={timeRegistrations} metaData={{editingRowId, editValues, startEdit, cancelEdit, adding, cancelAdding}}/>
+        <DataTable columns={columns} data={timeRegistrations} metaData={{editingRowId, editValues, startEdit, cancelEdit, adding, cancelAdding, submitAdding: form.handleSubmit(submitAdding), form}}/>
       </div>
 
     </div>
