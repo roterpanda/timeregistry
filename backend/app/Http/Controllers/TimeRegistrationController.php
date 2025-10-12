@@ -30,7 +30,7 @@ class TimeRegistrationController extends Controller
             'project_id' => 'required|exists:projects,id',
             'duration' => 'required|numeric|min:0',
             'kilometers' => 'nullable|numeric|min:0',
-            'description' => 'nullable|string',
+            'notes' => 'nullable|string',
             'date' => 'required|date',
         ]);
 

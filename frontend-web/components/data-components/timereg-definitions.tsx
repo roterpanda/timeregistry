@@ -9,10 +9,10 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import {Button} from "@/components/ui/button";
-import {BadgeX, Check, Cross, MoreHorizontal, X} from "lucide-react";
+import {Check, MoreHorizontal, X} from "lucide-react";
 import {Input} from "@/components/ui/input";
 import {RowData} from "@tanstack/table-core";
-import React, {useEffect} from "react";
+import React from "react";
 import DataSelectbox from "@/components/data-components/data-selectbox";
 import {z} from "zod";
 import {Controller, UseFormReturn} from "react-hook-form";
@@ -62,7 +62,7 @@ export const columns: ColumnDef<TimeRegistration>[] = [
     header: "Date",
     cell: ({row, table}) => {
       if (table.options.meta?.adding && row.original.id === 0) {
-        const {register, formState: {errors}} = table.options.meta?.form!;
+        const {register, formState: {errors}} = table.options.meta.form!;
         return (<div>
           <Input type={"date"} {...register("date")} />
           {errors.date && <p className="text-xs text-red-500">{errors.date.message as string}</p>}
@@ -79,7 +79,7 @@ export const columns: ColumnDef<TimeRegistration>[] = [
     header: "Duration",
     cell: ({row, table}) => {
       if (table.options.meta?.adding && row.original.id === 0) {
-        const {register, formState: {errors}} = table.options.meta?.form!;
+        const {register, formState: {errors}} = table.options.meta.form!;
         return (
           <div>
             <Input
@@ -131,7 +131,7 @@ export const columns: ColumnDef<TimeRegistration>[] = [
     header: "Kilometers",
     cell: ({row, table}) => {
       if (table.options.meta?.adding && row.original.id === 0) {
-        const {register, formState: {errors}} = table.options.meta?.form!;
+        const {register, formState: {errors}} = table.options.meta.form!;
         return (
           <div>
             <Input
@@ -153,13 +153,19 @@ export const columns: ColumnDef<TimeRegistration>[] = [
     accessorKey: "notes",
     header: "Notes",
     cell: ({row, table}) => {
+      if (table.options.meta?.adding && row.original.id === 0) {
+        const {register, formState: {errors}} = table.options.meta.form!;
+        return (
+          <div>
+            <Input
+              placeholder="Notes"
+              {...register("notes")}
+            />
+            {errors.notes && <p className="text-xs text-red-500">{errors.notes.message as string}</p>}
+          </div>);
+      }
       const notes = row.getValue("notes") as string;
-
-      {if (table.options.meta?.adding && row.original.id === 0) {
-        return (<Input type={"text"} placeholder={"Notes"} name={"notes"}/>);
-      }}
       return <div>{notes}</div>;
-
     }
   },
   {

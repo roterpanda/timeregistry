@@ -2,6 +2,13 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/c
 import {useEffect, useState} from "react";
 import api from "@/lib/axios";
 
+
+type SelectItemProps = {
+  [key: string]: string | undefined;
+}
+
+type SelectItemList = SelectItemProps[];
+
 interface DataSelectboxProps {
   dataUrl: string;
   dataIdKey: string;
@@ -12,7 +19,7 @@ interface DataSelectboxProps {
 }
 
 export default function DataSelectbox(props: DataSelectboxProps) {
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<SelectItemList>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -25,8 +32,8 @@ export default function DataSelectbox(props: DataSelectboxProps) {
       <SelectValue placeholder={props.placeholder ?? "Select an option"}/>
     </SelectTrigger>
     <SelectContent>
-      {data.length > 0 && data.map((item: any) => (
-        <SelectItem value={item[props.dataIdKey].toString()} key={item[props.dataIdKey]}>{item[props.dataKey]}</SelectItem>
+      {data.length > 0 && data.map((item: SelectItemProps) => (
+        <SelectItem value={item[props.dataIdKey]?.toString() || ""} key={item[props.dataIdKey]}>{item[props.dataKey]}</SelectItem>
       ))}
     </SelectContent>
   </Select></div>);

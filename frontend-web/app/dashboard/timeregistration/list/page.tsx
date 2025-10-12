@@ -10,7 +10,7 @@ import {
 } from "@/components/data-components/timereg-definitions";
 import {DataTable} from "@/components/data-components/data-table";
 import api from "@/lib/axios";
-import {useEffect, useMemo, useState} from "react";
+import {useEffect, useState} from "react";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {useForm} from "react-hook-form";
 
@@ -65,7 +65,7 @@ export default function TimeRegistrationTablePage() {
         duration: data.duration,
         project_id: data.project,
         kilometers: data.kilometers,
-        description: data.notes,
+        notes: data.notes,
       });
       setTimeRegistrations((prevState) => [response.data, ...prevState.filter((timereg) => timereg.id !== 0)]);
       setAdding(false);
