@@ -60,6 +60,7 @@ export const columns: ColumnDef<TimeRegistration>[] = [
   {
     accessorKey: "date",
     header: "Date",
+    sortingFn: "datetime",
     cell: ({row, table}) => {
       if (table.options.meta?.adding && row.original.id === 0) {
         const {register, formState: {errors}} = table.options.meta.form!;
