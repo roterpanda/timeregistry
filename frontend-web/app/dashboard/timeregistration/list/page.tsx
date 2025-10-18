@@ -22,6 +22,7 @@ export default function TimeRegistrationTablePage() {
   const [editValues, setEditValues] = useState<Partial<TimeRegistration>>({});
   const [adding, setAdding] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [deletingRow, setDeletingRow] = useState<number | null>(null);
   const [error, setError] = useState<string>("");
 
   const form = useForm<TimeRegistrationFormData>({
@@ -55,6 +56,28 @@ export default function TimeRegistrationTablePage() {
   const cancelEdit = () => {
     setEditingRowId(null);
     setEditValues({});
+  }
+
+  const startDeleting = (id: number) => {
+    setDeletingRow(id);
+  }
+
+  const cancelDeleting = () => {
+    setDeletingRow(null);
+  }
+
+  const deleteTimeRegistration = async (id: number) => {
+    try {
+      await api.get("/sanctum/csrf-cookie", { withCredentials: true });
+      await api.delete(`/api/v1/timeregistration/${id}`);
+      setTimeRegistrations((prevState) => prevState.filter((timereg) => timereg.id !== id));
+    } catch (error) {
+      console.error("Error deleting time registration:", error);
+      setError("Error deleting time registration");
+    }
+    finally {
+      setDeletingRow(null);
+    }
   }
 
   const submitAdding = async (data: TimeRegistrationFormData) => {
@@ -106,7 +129,22 @@ export default function TimeRegistrationTablePage() {
 
       {loading && <p>Loading...</p>}
       <div className="mt-8">
-        <DataTable columns={columns} data={timeRegistrations} metaData={{editingRowId, editValues, startEdit, cancelEdit, adding, cancelAdding, submitAdding: form.handleSubmit(submitAdding), form}}/>
+        <DataTable
+          columns={columns}
+          data={timeRegistrations}
+          metaData={{
+            editingRowId,
+            editValues,
+            startEdit,
+            cancelEdit,
+            adding,
+            deletingRow,
+            cancelAdding,
+            submitAdding: form.handleSubmit(submitAdding),
+            form,
+            startDeleting,
+            cancelDeleting,
+            deleteTimeRegistration}}/>
       </div>
 
     </div>

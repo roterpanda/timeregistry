@@ -49,5 +49,19 @@ class TimeRegistrationController extends Controller
 
     }
 
+    public function destroy(string $id)
+    {
+        $user = Auth::guard('web')->user();
+        if (!$user) {
+            return response()->json('Unauthenticated', 401);
+        }
+        $timeRegistration = $user->timeRegistrations()->find($id);
+        if (!$timeRegistration) {
+            return response()->json('Time registration not found', 404);
+        }
+        $timeRegistration->delete();
+        return response()->json('Time registration deleted successfully');
+    }
+
 
 }
