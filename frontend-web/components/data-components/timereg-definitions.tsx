@@ -1,13 +1,6 @@
 "use client"
 
 import {ColumnDef} from "@tanstack/react-table"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
 import {Button} from "@/components/ui/button";
 import {Check, MoreHorizontal, PenIcon, TrashIcon, X} from "lucide-react";
 import {Input} from "@/components/ui/input";
@@ -16,12 +9,12 @@ import React from "react";
 import DataSelectbox from "@/components/data-components/data-selectbox";
 import {z} from "zod";
 import {Controller, UseFormReturn} from "react-hook-form";
+import {Tooltip, TooltipContent, TooltipTrigger} from "@/components/ui/tooltip";
 
 
 declare module "@tanstack/react-table" {
   interface TableMeta<TData extends RowData> {
     editingRowId?: number | null;
-    editValues: Partial<TimeRegistration>;
     startEdit: (row: TimeRegistration) => void;
     cancelEdit: () => void;
     cancelAdding: () => void;
@@ -32,6 +25,7 @@ declare module "@tanstack/react-table" {
     deleteTimeRegistration: (id: number) => void;
     startDeleting: (id: number) => void;
     cancelDeleting: () => void;
+    updateTimeRegistration: () => void;
   }
 }
 
@@ -66,7 +60,7 @@ export const columns: ColumnDef<TimeRegistration>[] = [
     header: "Date",
     sortingFn: "datetime",
     cell: ({row, table}) => {
-      if (table.options.meta?.adding && row.original.id === 0) {
+      if (table.options.meta?.adding && row.original.id === 0 || table.options.meta?.editingRowId === row.original.id) {
         const {register, formState: {errors}} = table.options.meta.form!;
         return (<div>
           <Input type={"date"} {...register("date")} />
@@ -83,7 +77,7 @@ export const columns: ColumnDef<TimeRegistration>[] = [
     accessorKey: "duration",
     header: "Duration",
     cell: ({row, table}) => {
-      if (table.options.meta?.adding && row.original.id === 0) {
+      if (table.options.meta?.adding && row.original.id === 0 || table.options.meta?.editingRowId === row.original.id) {
         const {register, formState: {errors}} = table.options.meta.form!;
         return (
           <div>
@@ -106,7 +100,7 @@ export const columns: ColumnDef<TimeRegistration>[] = [
     accessorKey: "project",
     header: "Project",
     cell: ({row, table}) => {
-      if (table.options.meta?.adding && row.original.id === 0) {
+      if (table.options.meta?.adding && row.original.id === 0 || table.options.meta?.editingRowId === row.original.id) {
         const {control, formState: {errors}} = table.options.meta.form!;
         return (
           <div>
@@ -135,7 +129,7 @@ export const columns: ColumnDef<TimeRegistration>[] = [
     accessorKey: "kilometers",
     header: "Kilometers",
     cell: ({row, table}) => {
-      if (table.options.meta?.adding && row.original.id === 0) {
+      if (table.options.meta?.adding && row.original.id === 0 || table.options.meta?.editingRowId === row.original.id) {
         const {register, formState: {errors}} = table.options.meta.form!;
         return (
           <div>
@@ -158,7 +152,7 @@ export const columns: ColumnDef<TimeRegistration>[] = [
     accessorKey: "notes",
     header: "Notes",
     cell: ({row, table}) => {
-      if (table.options.meta?.adding && row.original.id === 0) {
+      if (table.options.meta?.adding && row.original.id === 0 || table.options.meta?.editingRowId === row.original.id) {
         const {register, formState: {errors}} = table.options.meta.form!;
         return (
           <div>
@@ -178,14 +172,35 @@ export const columns: ColumnDef<TimeRegistration>[] = [
     cell: ({row, table}) => {
       return (
         <div className="flex gap-2">
-          {row.original.id !== 0 && table.options.meta?.deletingRow !== row.original.id && (
+          {row.original.id !== 0 && table.options.meta?.deletingRow !== row.original.id && table.options.meta?.editingRowId !== row.original.id && (
             <div>
-              <Button
-                variant="ghost"
-                size="icon"
-              >
-                <PenIcon className="h4 w-4"/>
-              </Button>
+              {table.options.meta?.adding ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        if (!table.options.meta?.adding) {
+                          table.options.meta?.startEdit(row.original);
+                        }
+                      }}
+                    >
+                      <PenIcon />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>First finish adding.</p>
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => table.options.meta?.startEdit(row.original)}
+                >
+                  <PenIcon />
+                </Button>)}
               <Button
                 variant="ghost"
                 size="icon"
@@ -193,20 +208,26 @@ export const columns: ColumnDef<TimeRegistration>[] = [
               >
                 <TrashIcon />
               </Button>
-            </div>)}
-          {table.options.meta?.adding && row.original.id === 0 && (
+            </div>
+          )}
+          {((table.options.meta?.adding && row.original.id === 0) || (table.options.meta?.editingRowId === row.original.id)) && (
             <>
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={table.options.meta?.submitAdding}
+                onClick={
+                table.options.meta?.adding && row.original.id === 0 ?
+                table.options.meta?.submitAdding :
+                table.options.meta?.updateTimeRegistration }
               >
                 <Check />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={(e) => table.options.meta?.cancelAdding()}>
+                onClick={ table.options.meta?.adding && row.original.id === 0 ?
+                (e) => table.options.meta?.cancelAdding()
+                : (e) => table.options.meta?.cancelEdit()}>
                 <X />
               </Button>
             </>)}
