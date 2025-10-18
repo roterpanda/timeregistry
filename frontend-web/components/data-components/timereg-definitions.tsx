@@ -2,7 +2,7 @@
 
 import {ColumnDef} from "@tanstack/react-table"
 import {Button} from "@/components/ui/button";
-import {Check, MoreHorizontal, PenIcon, TrashIcon, X} from "lucide-react";
+import {Check, PenIcon, TrashIcon, X} from "lucide-react";
 import {Input} from "@/components/ui/input";
 import {RowData} from "@tanstack/table-core";
 import React from "react";
@@ -226,8 +226,8 @@ export const columns: ColumnDef<TimeRegistration>[] = [
                 variant="ghost"
                 size="icon"
                 onClick={ table.options.meta?.adding && row.original.id === 0 ?
-                (e) => table.options.meta?.cancelAdding()
-                : (e) => table.options.meta?.cancelEdit()}>
+                () => table.options.meta?.cancelAdding()
+                : () => table.options.meta?.cancelEdit()}>
                 <X />
               </Button>
             </>)}
@@ -236,14 +236,14 @@ export const columns: ColumnDef<TimeRegistration>[] = [
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={(e) => table.options.meta?.deleteTimeRegistration(row.original.id)}
+                onClick={() => table.options.meta?.deleteTimeRegistration(row.original.id)}
               >
                 <Check />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={(e) => table.options.meta?.cancelDeleting()}>
+                onClick={() => table.options.meta?.cancelDeleting()}>
                 <X />
               </Button>
             </>)}

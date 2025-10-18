@@ -3,13 +3,14 @@
 import {
   ColumnDef,
   flexRender,
-  getCoreRowModel, getPaginationRowModel,
+  getCoreRowModel,
+  getPaginationRowModel,
   getSortedRowModel,
   TableMeta,
   useReactTable
 } from "@tanstack/react-table";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
-import {ArrowDownIcon, ArrowUpIcon, ChevronDown, ChevronFirst, ChevronLast, ChevronUp, RewindIcon} from "lucide-react";
+import {ChevronDown, ChevronFirst, ChevronLast, ChevronUp} from "lucide-react";
 import {
   Pagination,
   PaginationContent,
@@ -26,9 +27,10 @@ interface DataTableProps<TData, TValue> {
 }
 
 export function DataTable<TData, TValue>({
-  columns,
-  data, metaData}
-: DataTableProps<TData, TValue>) {
+                                           columns,
+                                           data, metaData
+                                         }
+                                         : DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
@@ -40,18 +42,18 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="overflow-hidden rounded-md border">
-      <Table className="w-full" style={{ tableLayout: "fixed" }}>
+      <Table className="w-full" style={{tableLayout: "fixed"}}>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
                 return (
-                  <TableHead key={header.id} style={{ width: header.getSize() }}>
+                  <TableHead key={header.id} style={{width: header.getSize()}}>
                     {header.isPlaceholder ? null : (
                       <div
                         className={header.column.getCanSort()
-                        ? "cursor-pointer select-none flex justify-between items-center"
-                        : ""}
+                          ? "cursor-pointer select-none flex justify-between items-center"
+                          : ""}
                         onClick={header.column.getToggleSortingHandler()}
                         title={
                           header.column.getCanSort() ? header.column.getNextSortingOrder() === "asc"
@@ -60,14 +62,14 @@ export function DataTable<TData, TValue>({
                                 ? "Sort descending"
                                 : "Clear sort"
                             : undefined}
-                        >
+                      >
                         {flexRender(
                           header.column.columnDef.header,
                           header.getContext()
                         )}
                         {{
-                          asc: <ChevronUp />,
-                          desc: <ChevronDown />,
+                          asc: <ChevronUp/>,
+                          desc: <ChevronDown/>,
                         }[header.column.getIsSorted() as string] ?? null}
                       </div>
                     )}
@@ -85,7 +87,7 @@ export function DataTable<TData, TValue>({
                 data-state={row.getIsSelected() && "selected"}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} style={{ width: cell.column.getSize() }}>
+                  <TableCell key={cell.id} style={{width: cell.column.getSize()}}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
@@ -109,7 +111,7 @@ export function DataTable<TData, TValue>({
               onClick={() => table.firstPage()}
               disabled={!table.getCanPreviousPage()}
             >
-              <ChevronFirst />
+              <ChevronFirst/>
             </Button>
           </PaginationItem>
           <PaginationItem>
@@ -134,7 +136,7 @@ export function DataTable<TData, TValue>({
               size="sm"
               onClick={() => table.lastPage()}
               disabled={!table.getCanNextPage()}>
-              <ChevronLast />
+              <ChevronLast/>
             </Button>
           </PaginationItem>
         </PaginationContent>
