@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import {Button} from "@/components/ui/button";
-import {Check, MoreHorizontal, X} from "lucide-react";
+import {Check, MoreHorizontal, PenIcon, TrashIcon, X} from "lucide-react";
 import {Input} from "@/components/ui/input";
 import {RowData} from "@tanstack/table-core";
 import React from "react";
@@ -27,7 +27,11 @@ declare module "@tanstack/react-table" {
     cancelAdding: () => void;
     submitAdding: () => void;
     adding: boolean;
+    deletingRow: number | null;
     form?: UseFormReturn<TimeRegistrationFormData>;
+    deleteTimeRegistration: (id: number) => void;
+    startDeleting: (id: number) => void;
+    cancelDeleting: () => void;
   }
 }
 
@@ -174,22 +178,22 @@ export const columns: ColumnDef<TimeRegistration>[] = [
     cell: ({row, table}) => {
       return (
         <div className="flex gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4"/>
+          {row.original.id !== 0 && table.options.meta?.deletingRow !== row.original.id && (
+            <div>
+              <Button
+                variant="ghost"
+                size="icon"
+              >
+                <PenIcon className="h4 w-4"/>
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => table.options.meta?.startEdit(row.original)}>Edit</DropdownMenuItem>
-              <DropdownMenuItem>Delete</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          {table.options.meta?.editingRowId === row.original.id && (<Button variant="ghost" onClick={(e) => {
-            table.options.meta?.cancelEdit();
-          }} size={"icon"} className="pointer-events-auto"><X className="h4 w-4"/></Button>)}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => table.options.meta?.startDeleting(row.original.id)}
+              >
+                <TrashIcon />
+              </Button>
+            </div>)}
           {table.options.meta?.adding && row.original.id === 0 && (
             <>
               <Button
@@ -197,13 +201,29 @@ export const columns: ColumnDef<TimeRegistration>[] = [
                 size="icon"
                 onClick={table.options.meta?.submitAdding}
               >
-                <Check className="h4 w-4" />
+                <Check />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={(e) => table.options.meta?.cancelAdding()}>
-                <X className="h4 w-4"/>
+                <X />
+              </Button>
+            </>)}
+          {table.options.meta?.deletingRow === row.original.id && (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={(e) => table.options.meta?.deleteTimeRegistration(row.original.id)}
+              >
+                <Check />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={(e) => table.options.meta?.cancelDeleting()}>
+                <X />
               </Button>
             </>)}
         </div>
