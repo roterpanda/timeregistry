@@ -19,7 +19,6 @@ import {useForm} from "react-hook-form";
 export default function TimeRegistrationTablePage() {
   const [timeRegistrations, setTimeRegistrations] = useState<TimeRegistration[]>([]);
   const [editingRowId, setEditingRowId] = useState<number | null>(null);
-  const [editValues, setEditValues] = useState<Partial<TimeRegistration>>({});
   const [adding, setAdding] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [deletingRow, setDeletingRow] = useState<number | null>(null);
@@ -50,12 +49,42 @@ export default function TimeRegistrationTablePage() {
 
   const startEdit = (row: TimeRegistration) => {
     setEditingRowId(row.id);
-    setEditValues(row);
+
+    form.reset({
+      date: new Date(row.date).toISOString().split("T")[0],
+      duration: row.duration,
+      project: row.project.id,
+      kilometers: row.kilometers ?? 0,
+      notes: row.notes ?? "",
+    });
+
   }
 
   const cancelEdit = () => {
     setEditingRowId(null);
-    setEditValues({});
+    form.reset();
+  }
+
+  const updateTimeRegistration = async (id: number, data: TimeRegistrationFormData) => {
+    try {
+      await api.get("/sanctum/csrf-cookie", { withCredentials: true });
+      const response = await api.put(`/api/v1/timeregistration/${id}`, {
+        date: data.date,
+        duration: data.duration,
+        project_id: data.project,
+        kilometers: data.kilometers,
+        notes: data.notes,
+      });
+      setTimeRegistrations((prevState) => prevState.map((timereg) => (timereg.id === response.data.id ? response.data : timereg)));
+      form.reset();
+    }
+    catch (error) {
+      console.error("Error adding time registration:", error);
+      setError("Error adding time registration");
+    }
+    finally {
+      setEditingRowId(null);
+    }
   }
 
   const startDeleting = (id: number) => {
@@ -120,6 +149,15 @@ export default function TimeRegistrationTablePage() {
           if (adding) return;
           cancelEdit();
           setAdding(true);
+
+          form.reset({
+            date: "",
+            duration: 0,
+            project: 0,
+            kilometers: 0,
+            notes: "",
+          });
+
           setTimeRegistrations((prevState) => [{id: 0, date: new Date(), duration: 0, project: {id: 0, name: ""}, notes: "", kilometers: 0}, ...prevState]);
         }}>
             <PlusCircleIcon/>
@@ -134,7 +172,6 @@ export default function TimeRegistrationTablePage() {
           data={timeRegistrations}
           metaData={{
             editingRowId,
-            editValues,
             startEdit,
             cancelEdit,
             adding,
@@ -144,7 +181,11 @@ export default function TimeRegistrationTablePage() {
             form,
             startDeleting,
             cancelDeleting,
-            deleteTimeRegistration}}/>
+            deleteTimeRegistration,
+            updateTimeRegistration: form.handleSubmit(async (data) => {
+              if (editingRowId === null) return;
+              await updateTimeRegistration(editingRowId, data)
+            })}}/>
       </div>
 
     </div>
