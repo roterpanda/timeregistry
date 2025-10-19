@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
+use App\Services\TimeRegistrationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -94,6 +95,20 @@ class TimeRegistrationController extends Controller
         }
         $timeRegistration->delete();
         return response()->json('Time registration deleted successfully');
+    }
+
+    public function getStats(Request $request, TimeRegistrationService $timeRegistrationService)
+    {
+        $user = Auth::guard('web')->user();
+        if (!$user) {
+            return response()->json('Unauthenticated', 401);
+        }
+        $count = $timeRegistrationService->getRegistrationCount($user);
+        $totalTime = $timeRegistrationService->getTotalTime($user);
+        return response()->json([
+            'count' => $count,
+            'totalTime' => $totalTime,
+        ]);
     }
 
 
