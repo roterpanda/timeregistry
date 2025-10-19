@@ -27,7 +27,7 @@ export default function Dashboard() {
         )
       }
     );
-  }, [user]);
+  }, []);
 
   return (
       <div className="w-full flex flex-col flex-1 mx-auto p-6 space-y-6">
