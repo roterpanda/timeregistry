@@ -9,6 +9,11 @@ export type Project = {
   is_public?: boolean;
 } | null;
 
+export type TimeregistrationStats = {
+  count: number;
+  totalTime: number;
+}
+
 export interface ProjectListProps {
   limit?: number;
   onlyShowOwnProjects?: boolean;

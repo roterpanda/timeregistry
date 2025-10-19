@@ -42,7 +42,8 @@ export async function registerUser(page: Page, user: {username:string, password:
   await submit.scrollIntoViewIfNeeded();
   await submit.click();
 
-  await expect(page.getByText("User registered successfully")).toBeVisible();
+  await page.waitForURL('**/login', { timeout: 5000 });
+  await expect(page).toHaveURL(/\/login$/);
 }
 
 
