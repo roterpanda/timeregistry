@@ -59,6 +59,7 @@ export const columns: ColumnDef<TimeRegistration>[] = [
     accessorKey: "date",
     header: "Date",
     sortingFn: "datetime",
+    enableColumnFilter: false,
     cell: ({row, table}) => {
       if (table.options.meta?.adding && row.original.id === 0 || table.options.meta?.editingRowId === row.original.id) {
         const {register, formState: {errors}} = table.options.meta.form!;
@@ -76,6 +77,7 @@ export const columns: ColumnDef<TimeRegistration>[] = [
   {
     accessorKey: "duration",
     header: "Duration",
+    enableColumnFilter: false,
     cell: ({row, table}) => {
       if (table.options.meta?.adding && row.original.id === 0 || table.options.meta?.editingRowId === row.original.id) {
         const {register, formState: {errors}} = table.options.meta.form!;
@@ -98,7 +100,10 @@ export const columns: ColumnDef<TimeRegistration>[] = [
   },
   {
     accessorKey: "project",
+    accessorFn: (row) => row.project.name,
     header: "Project",
+    filterFn: "equalsString",
+    enableSorting: false,
     cell: ({row, table}) => {
       if (table.options.meta?.adding && row.original.id === 0 || table.options.meta?.editingRowId === row.original.id) {
         const {control, formState: {errors}} = table.options.meta.form!;
@@ -128,6 +133,7 @@ export const columns: ColumnDef<TimeRegistration>[] = [
   {
     accessorKey: "kilometers",
     header: "Kilometers",
+    enableColumnFilter: false,
     cell: ({row, table}) => {
       if (table.options.meta?.adding && row.original.id === 0 || table.options.meta?.editingRowId === row.original.id) {
         const {register, formState: {errors}} = table.options.meta.form!;
@@ -151,6 +157,7 @@ export const columns: ColumnDef<TimeRegistration>[] = [
   {
     accessorKey: "notes",
     header: "Notes",
+    enableColumnFilter: false,
     cell: ({row, table}) => {
       if (table.options.meta?.adding && row.original.id === 0 || table.options.meta?.editingRowId === row.original.id) {
         const {register, formState: {errors}} = table.options.meta.form!;

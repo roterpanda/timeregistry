@@ -1,16 +1,17 @@
 "use client"
 
 import {
+  Column,
   ColumnDef,
   flexRender,
-  getCoreRowModel,
+  getCoreRowModel, getFacetedUniqueValues, getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   TableMeta,
   useReactTable
 } from "@tanstack/react-table";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
-import {ChevronDown, ChevronFirst, ChevronLast, ChevronUp} from "lucide-react";
+import {ChevronDown, ChevronFirst, ChevronLast, ChevronUp } from "lucide-react";
 import {
   Pagination,
   PaginationContent,
@@ -19,6 +20,7 @@ import {
   PaginationPrevious
 } from "@/components/ui/pagination";
 import {Button} from "@/components/ui/button";
+import React from "react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -37,6 +39,8 @@ export function DataTable<TData, TValue>({
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
     meta: metaData,
   })
 
@@ -50,6 +54,7 @@ export function DataTable<TData, TValue>({
                 return (
                   <TableHead key={header.id} style={{width: header.getSize()}}>
                     {header.isPlaceholder ? null : (
+                      <div className="flex justify-between items-center gap-2">
                       <div
                         className={header.column.getCanSort()
                           ? "cursor-pointer select-none flex justify-between items-center"
@@ -72,6 +77,11 @@ export function DataTable<TData, TValue>({
                           desc: <ChevronDown/>,
                         }[header.column.getIsSorted() as string] ?? null}
                       </div>
+                        {header.column.getCanFilter() ? (
+                            <Filter column={header.column} />
+                        ) : null}
+                      </div>
+
                     )}
                   </TableHead>
                 )
@@ -143,4 +153,34 @@ export function DataTable<TData, TValue>({
       </Pagination>
     </div>
   )
+}
+
+function Filter<TData, TValue>({ column }: { column: Column<TData, TValue> }) {
+  const columnFilterValue = column.getFilterValue();
+
+  const facetedUniqueValues = column.getFacetedUniqueValues();
+
+  const sortedUniqueValues = React.useMemo(
+    () => Array.from(facetedUniqueValues.keys()).sort().slice(0, 1000), [facetedUniqueValues]
+  );
+
+  return (
+    <div>
+      <div className="flex space-x-2">
+        <select
+          onChange={(e) => column.setFilterValue(e.target.value)}
+          value={columnFilterValue?.toString()}
+          className="text-xs border rounded px-1 py-0.5 max-w-[120px]">
+          <option value="">All</option>
+          {sortedUniqueValues.map((value) => (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+  );
+
+
 }
