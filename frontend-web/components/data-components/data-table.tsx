@@ -155,11 +155,13 @@ export function DataTable<TData, TValue>({
   )
 }
 
-function Filter({ column }: { column: Column<any, unknown> }) {
+function Filter<TData, TValue>({ column }: { column: Column<TData, TValue> }) {
   const columnFilterValue = column.getFilterValue();
 
+  const facetedUniqueValues = column.getFacetedUniqueValues();
+
   const sortedUniqueValues = React.useMemo(
-    () => Array.from(column.getFacetedUniqueValues().keys()).sort().slice(0, 1000), [column.getFacetedUniqueValues()]
+    () => Array.from(facetedUniqueValues.keys()).sort().slice(0, 1000), [facetedUniqueValues]
   );
 
   return (

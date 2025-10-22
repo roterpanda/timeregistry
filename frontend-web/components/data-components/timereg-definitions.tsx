@@ -102,6 +102,7 @@ export const columns: ColumnDef<TimeRegistration>[] = [
     accessorKey: "project",
     accessorFn: (row) => row.project.name,
     header: "Project",
+    filterFn: "equalsString",
     enableSorting: false,
     cell: ({row, table}) => {
       if (table.options.meta?.adding && row.original.id === 0 || table.options.meta?.editingRowId === row.original.id) {
