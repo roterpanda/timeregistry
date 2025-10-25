@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 
 use App\Services\RegisterUserService;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,9 +32,11 @@ class AuthController extends Controller
             $data['name'] = $user->name;
             $data['message'] = 'User successfully registered';
 
+            $user->sendEmailVerificationNotification();
+
             return response()->json($data, 201);
         } catch (\Exception $e) {
-            return response()->json('Error while registering user', 500);
+            return response()->json(['message' => 'Error while registering user', 'errors' => $e->getMessage()], 500);
         }
 
     }
@@ -53,6 +56,12 @@ class AuthController extends Controller
         if (!Auth::guard('web')->attempt($credentials)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
+
+        if (!Auth::guard('web')->user()->hasVerifiedEmail()) {
+            Auth::guard('web')->logout();
+            return response()->json(['message' => 'Email not verified'], 403);
+        }
+
         $request->session()->regenerate();
         return response()->json(['message' => 'Logged in', 'name' => Auth::guard('web')->user()->name]);
     }
