@@ -16,12 +16,12 @@ Route::prefix('v1')->group(function () {
     Route::get('user', [UserResourcesController::class, 'getUserName'])
         ->middleware('auth:sanctum');
 
-    Route::apiResource('project', ProjectController::class)->middleware('auth:sanctum');
+    Route::apiResource('project', ProjectController::class)->middleware(['auth:sanctum', 'verified']);
 
-    Route::get('timeregistration/stats', [TimeRegistrationController::class, 'getStats'])->middleware('auth:sanctum');
+    Route::get('timeregistration/stats', [TimeRegistrationController::class, 'getStats'])->middleware(['auth:sanctum', 'verified']);
 
 
-    Route::apiResource('timeregistration', TimeRegistrationController::class)->middleware('auth:sanctum');
+    Route::apiResource('timeregistration', TimeRegistrationController::class)->middleware(['auth:sanctum', 'verified']);
 
 
 

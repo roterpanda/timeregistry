@@ -22,11 +22,18 @@ Route::get('/email/verify/{id}/{hash}', function ($id, $hash) {
     }
 
     if ($user->hasVerifiedEmail()) {
-        return redirect(rtrim(env('FRONTEND_URL', '/'), '/') . '/email-verified');
+        return redirect(rtrim(config('app.frontend_url'), '/') . '/email-verified');
     }
 
     $user->markEmailAsVerified();
 
-    return redirect(env(rtrim('FRONTEND_URL', '/'), '/') . '/email-verified');
+    return redirect(rtrim(config('app.frontend_url'), '/') . '/email-verified');
 
 })->middleware(['signed'])->name('verification.verify');
+
+Route::get('/email/verify', function () {
+    return redirect(rtrim(config('app.frontend_url'), '/') . '/verify-email');
+})->name('verification.notice');
+
+
+Route::post('/email/resend', [AuthController::class, 'resendVerificationEmail'])->middleware(['auth:sanctum', 'throttle:6,1'])->name('verification.send');
