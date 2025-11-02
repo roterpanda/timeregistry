@@ -15,9 +15,12 @@ use Symfony\Component\HttpFoundation\Cookie;
 class UserResourcesController extends BaseController
 {
 
-   public function getUserName(Request $request): JsonResponse
+   public function getUserData(Request $request): JsonResponse
    {
-       return response()->json($request->user()->name);
+       return response()->json([
+           'name' => $request->user()->name,
+           'verified' => $request->user()->hasVerifiedEmail(),
+       ]);
    }
 
 }

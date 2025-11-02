@@ -5,14 +5,12 @@ use App\Models\User;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('web')->group(function () {
-    Route::post('/login', [AuthController::class, 'login']);
 
-    Route::post('/logout', [AuthController::class, 'logout']);
+Route::post('/login', [AuthController::class, 'login']);
 
-    Route::post('/register', [AuthController::class, 'register']);
+Route::post('/logout', [AuthController::class, 'logout']);
 
-});
+Route::post('/register', [AuthController::class, 'register']);
 
 Route::get('/email/verify/{id}/{hash}', function ($id, $hash) {
     $user = User::findOrFail($id);
@@ -22,18 +20,14 @@ Route::get('/email/verify/{id}/{hash}', function ($id, $hash) {
     }
 
     if ($user->hasVerifiedEmail()) {
-        return redirect(rtrim(config('app.frontend_url'), '/') . '/email-verified');
+        return json_encode(['message' => 'Email already verified']);
     }
 
     $user->markEmailAsVerified();
 
-    return redirect(rtrim(config('app.frontend_url'), '/') . '/email-verified');
+    return json_encode(['message' => 'Email verified successfully']);
 
 })->middleware(['signed'])->name('verification.verify');
 
-Route::get('/email/verify', function () {
-    return redirect(rtrim(config('app.frontend_url'), '/') . '/verify-email');
-})->name('verification.notice');
 
-
-Route::post('/email/resend', [AuthController::class, 'resendVerificationEmail'])->middleware(['auth:sanctum', 'throttle:6,1'])->name('verification.send');
+Route::post('/email/resend', [AuthController::class, 'resendVerificationEmail'])->middleware(['throttle:6,1'])->name('verification.send');

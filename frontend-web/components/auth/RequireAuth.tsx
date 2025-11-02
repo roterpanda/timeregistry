@@ -4,19 +4,19 @@ import {useRouter} from "next/navigation";
 
 
 export function RequireAuth( {children}: {children: React.ReactNode }) {
-  const {user, loading} = useAuth();
+  const {user, loading, isVerified} = useAuth();
   const [authChecked, setAuthChecked] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     if (!loading) {
-      if (user === null) {
+      if (user === null || !isVerified) {
         router.push("/login");
       } else {
         setAuthChecked(true);
       }
     }
-  }, [user, loading, router]);
+  }, [user, loading, isVerified, router]);
 
   if (loading) return <div className="flex justify-center items-center h-screen">Loading...</div>
 

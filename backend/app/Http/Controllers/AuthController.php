@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 
+use App\Models\User;
 use App\Services\RegisterUserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -57,11 +58,12 @@ class AuthController extends Controller
         }
 
         if (!Auth::guard('web')->user()->hasVerifiedEmail()) {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
             return response()->json([
                 'message' => 'Please verify your email address.',
                 'verified' => false,
-                'route' => rtrim(config('app.frontend_url'), '/') . '/verify-email'
-            ], 200);
+            ], 403);
         }
 
         $request->session()->regenerate();
@@ -70,11 +72,18 @@ class AuthController extends Controller
 
     public function resendVerificationEmail(Request $request): JsonResponse
     {
-        if (!Auth::guard('web')->user()->hasVerifiedEmail()) {
-            Auth::guard('web')->user()->sendEmailVerificationNotification();
-            return response()->json(['message' => 'Verification email sent']);
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
         }
-        return response()->json(['message' => 'Email already verified']);
+
+        $user = User::where('email', $request->email)->first();
+        $user?->sendEmailVerificationNotification();
+        return response()->json(['message' => 'Verification email sent if user exists.']);
+
     }
 
     public function logout(Request $request): JsonResponse

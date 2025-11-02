@@ -6,52 +6,37 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
-import axios, {AxiosError, AxiosResponse} from "axios";
-import {useState} from "react";
-import {Alert, AlertTitle} from "@/components/ui/alert";
-import {useAuth} from "@/lib/authContext";
-import {useRouter} from "next/navigation";
+import axios, {AxiosResponse} from "axios";
 import {toast} from "sonner";
 
 const formSchema = z.object({
   email: z.email("Must be an email"),
-  password: z.string(),
 });
 
-export function LoginForm() {
-  const {login} = useAuth();
-  const router = useRouter();
+export function ResendVerifyLinkForm() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
-      password: "",
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     axios.get(`${process.env.NEXT_PUBLIC_API_URL}/sanctum/csrf-cookie`, {withCredentials: true})
       .then(() => {
-        axios.post(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
+        axios.post(`${process.env.NEXT_PUBLIC_API_URL}/email/resend`, {
           email: values.email,
-          password: values.password,
         }, {
           headers: {"Content-Type": "application/json"},
           withCredentials: true,
           withXSRFToken: true,
         })
-          .then((result: AxiosResponse) => {
-            login({name: result.data.name, verified: true});
-            router.push("/dashboard");
+          .then((res: AxiosResponse) => {
+            toast.success(res.data?.message || "Success");
+            form.reset();
           })
-          .catch((err: AxiosError) => {
-            if (err.status === 401) {
-              toast.error("Unauthorized. Please try again.");
-            } else if (err.status === 403) {
-                router.push("/verify-email");
-                toast.info("Please verify your email before logging in.");
-            }
+          .catch(() => {
           });
       });
   }
@@ -71,21 +56,6 @@ export function LoginForm() {
                 </FormControl>
                 <FormDescription>
                   Your email address.
-                </FormDescription>
-                <FormMessage/>
-              </FormItem>
-            )}/>
-          <FormField
-            control={form.control}
-            name="password"
-            render={({field}) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input placeholder="Password" {...field} type="password"/>
-                </FormControl>
-                <FormDescription>
-                  Your password.
                 </FormDescription>
                 <FormMessage/>
               </FormItem>

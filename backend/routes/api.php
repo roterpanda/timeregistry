@@ -13,7 +13,7 @@ Route::prefix('v1')->group(function () {
         return response()->json(['message' => 'API is working!']);
     });
 
-    Route::get('user', [UserResourcesController::class, 'getUserName'])
+    Route::get('user', [UserResourcesController::class, 'getUserData'])
         ->middleware('auth:sanctum');
 
     Route::apiResource('project', ProjectController::class)->middleware(['auth:sanctum', 'verified']);
