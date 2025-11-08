@@ -1,4 +1,4 @@
-import axios, {AxiosError} from "axios";
+import axios, {AxiosError, AxiosRequestConfig} from "axios";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -35,8 +35,11 @@ api.interceptors.response.use(
         onUnauthorized?.();
         break;
       case 419:
-        if (!(error.config as any)?._retry) {
-          (error.config as any)._retry = true;
+        const config = error.config as AxiosRequestConfig & { _retry?: boolean } | undefined;
+        if (!config?._retry) {
+          if (config) {
+            config._retry = true;
+          }
           try {
             await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/sanctum/csrf-cookie`, {withCredentials: true});
             return api(error.config!);

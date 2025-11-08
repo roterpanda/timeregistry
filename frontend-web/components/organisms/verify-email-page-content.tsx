@@ -25,7 +25,7 @@ export default function VerifyEmailPageContent() {
       Verify your email address
     </h1>
     <p>
-      Please check your inbox for a verification link. If you don't see it, you can request a new one.
+      Please check your inbox for a verification link. If you don&apos;t see it, you can request a new one.
     </p>
     <h2>Resend verification link?</h2>
       <ResendVerifyLinkForm />

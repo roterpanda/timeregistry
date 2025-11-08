@@ -1,7 +1,13 @@
 import {expect, Page } from "@playwright/test";
+import {execSync} from "child_process";
 
 
-export async function registerUser(page: Page, user: {username:string, password:string, email:string}, url: string ) {
+export async function registerUser(
+  page: Page,
+  user: {username:string, password:string, email:string},
+  url: string,
+  verifyEmail: boolean = true
+) {
 
   await page.request.get("http://localhost:8000/sanctum/csrf-cookie");
 
@@ -42,8 +48,14 @@ export async function registerUser(page: Page, user: {username:string, password:
   await submit.scrollIntoViewIfNeeded();
   await submit.click();
 
-  await page.waitForURL('**/login', { timeout: 5000 });
-  await expect(page).toHaveURL(/\/login$/);
+  await page.waitForURL('**/verify-email', { timeout: 5000 });
+
+  if (verifyEmail) {
+    execSync(`cd backend && php artisan test:verify-user ${user.email}`, { stdio: "inherit" });
+
+    await page.goto("/login", { waitUntil: "domcontentloaded" });
+  }
+
 }
 
 

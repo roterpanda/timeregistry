@@ -52,7 +52,7 @@ export function RegisterForm() {
           .then(() => {
             toast.success("Registration successful. Please check your email to verify your account.");
             form.reset();
-            router.push("/login");
+            router.push("/verify-email");
           })
           .catch(() => {
             toast.error("Registration failed. Please try again.");
