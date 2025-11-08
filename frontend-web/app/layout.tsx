@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import {AuthProvider} from "@/lib/authContext";
 import MenuBar from "@/components/organisms/menubar";
+import {Toaster} from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "TimeRegistry",
@@ -26,6 +27,7 @@ export default function RootLayout({
               TimeRegistry
             </footer>
           </div>
+         <Toaster position={"top-center"} richColors={true}/>
        </AuthProvider>
       </body>
     </html>

@@ -16,20 +16,40 @@ test.afterEach(() => {
   createdUsers.length = 0;
 })
 
-test("Register user", async ({ page }) => {
+test("Register user and redirect to verify email page", async ({ page }) => {
   const testUser = generateTestUser();
   createdUsers.push(testUser.email);
 
-  await registerUser(page, testUser, "/register");
+  await registerUser(page, testUser, "/register", false);
 
+  // Assert we're on verify-email page
+  await expect(page).toHaveURL(/\/verify-email$/);
+  await expect(page.getByText(/verify your email/i)).toBeVisible();
 });
 
-test("Login user and show dashboard", async ({ page }) => {
+test("Login verified user and show dashboard", async ({ page }) => {
   const testUser = generateTestUser();
   createdUsers.push(testUser.email);
 
-  await registerUser(page, testUser, "/register");
+  // Register and auto-verify
+  await registerUser(page, testUser, "/register", true);
+
+  // Login
   await loginUser(page, testUser, "/login");
 
   await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
-})
+});
+
+test("Prevent unverified user from accessing dashboard", async ({ page }) => {
+  const testUser = generateTestUser();
+  createdUsers.push(testUser.email);
+
+  // Register without verification
+  await registerUser(page, testUser, "/register", false);
+
+  // Try to login
+  await loginUser(page, testUser, "/login");
+
+  // Should redirect back to verify-email or show error
+  await expect(page).toHaveURL(/\/verify-email$/);
+});

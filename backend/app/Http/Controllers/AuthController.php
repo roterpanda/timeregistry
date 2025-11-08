@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 
+use App\Models\User;
 use App\Services\RegisterUserService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -31,9 +33,11 @@ class AuthController extends Controller
             $data['name'] = $user->name;
             $data['message'] = 'User successfully registered';
 
+            $user->sendEmailVerificationNotification();
+
             return response()->json($data, 201);
         } catch (\Exception $e) {
-            return response()->json('Error while registering user', 500);
+            return response()->json(['message' => 'Error while registering user', 'errors' => $e->getMessage()], 500);
         }
 
     }
@@ -53,8 +57,51 @@ class AuthController extends Controller
         if (!Auth::guard('web')->attempt($credentials)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
+
+        if (!Auth::guard('web')->user()->hasVerifiedEmail()) {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            return response()->json([
+                'message' => 'Please verify your email address.',
+                'verified' => false,
+            ], 403);
+        }
+
         $request->session()->regenerate();
         return response()->json(['message' => 'Logged in', 'name' => Auth::guard('web')->user()->name]);
+    }
+
+    public function verifyEmail(Request $request, int $id, string $hash): RedirectResponse
+    {
+        $user = User::findOrFail($id);
+
+        if (!hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
+            return redirect(to: rtrim(config('app.frontend_url'), '/') . '/verify-email?status=invalid');
+        }
+
+        if ($user->hasVerifiedEmail()) {
+            return redirect(to: rtrim(config('app.frontend_url'), '/') . '/verify-email?status=already_verified');
+        }
+
+        $user->markEmailAsVerified();
+
+        return redirect(to: rtrim(config('app.frontend_url'), '/') . '/email-verified');
+    }
+
+    public function resendVerificationEmail(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $user = User::where('email', $request->email)->first();
+        $user?->sendEmailVerificationNotification();
+        return response()->json(['message' => 'Verification email sent if user exists.']);
+
     }
 
     public function logout(Request $request): JsonResponse

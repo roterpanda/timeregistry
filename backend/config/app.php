@@ -86,6 +86,8 @@ return [
 
     'frontend_web_secret' => env('FRONTEND_WEB_SECRET', ''),
 
+    'frontend_url' => env('FRONTEND_URL', '/'),
+
     /*
     |--------------------------------------------------------------------------
     | Encryption Key

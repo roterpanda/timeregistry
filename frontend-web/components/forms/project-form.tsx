@@ -55,7 +55,7 @@ export function ProjectForm({ isEdit = false, project = undefined } : ProjectFor
             })
             .catch((err: AxiosError<ErrorResponse>) => {
               const errorData: ErrorResponse = err.response?.data;
-              if (err.status === 422 || err.status === 400) {
+              if (err.status === 422) {
                 if (errorData) {
                   let alertMsg = errorData.error?.message || "Something went wrong. Try again.";
                   if (errorData.error?.details) {

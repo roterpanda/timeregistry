@@ -10,6 +10,7 @@ import axios, {AxiosError} from "axios";
 import {useState} from "react";
 import {Alert, AlertTitle} from "@/components/ui/alert";
 import {useRouter} from "next/navigation";
+import {toast} from "sonner";
 
 const formSchema = z.object({
   email: z.email("Must be an email"),
@@ -24,8 +25,6 @@ const formSchema = z.object({
 });
 
 export function RegisterForm() {
-  const [alert, setAlert] = useState<string>("");
-  const [success, setSuccess] = useState<boolean>(false);
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -51,30 +50,20 @@ export function RegisterForm() {
           withXSRFToken: true,
         })
           .then(() => {
-            setAlert("User registered successfully");
-            setSuccess(true);
+            toast.success("Registration successful. Please check your email to verify your account.");
             form.reset();
-            router.push("/login");
+            router.push("/verify-email");
           })
-          .catch((err: AxiosError) => {
-            if (err.status === 422) {
-              setSuccess(false);
-              setAlert("Something went wrong. Try again.")
-            }
+          .catch(() => {
+            toast.error("Registration failed. Please try again.");
           });
       })
   }
 
   return (
     <div className="flex flex-col gap-4">
-      {alert && <Alert variant={success ? "success" : "destructive"}>
-          <AlertTitle>{alert}</AlertTitle></Alert>
-      }
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit, () => {
-          setAlert("");
-          setSuccess(false);
-        })} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormField
             control={form.control}
             name="username"
