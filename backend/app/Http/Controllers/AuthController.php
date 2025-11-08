@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Services\RegisterUserService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -68,6 +69,23 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
         return response()->json(['message' => 'Logged in', 'name' => Auth::guard('web')->user()->name]);
+    }
+
+    public function verifyEmail(Request $request, int $id, string $hash): RedirectResponse
+    {
+        $user = User::findOrFail($id);
+
+        if (!hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
+            return redirect(to: rtrim(config('app.frontend_url'), '/') . '/verify-email?status=invalid');
+        }
+
+        if ($user->hasVerifiedEmail()) {
+            return redirect(to: rtrim(config('app.frontend_url'), '/') . '/verify-email?status=already_verified');
+        }
+
+        $user->markEmailAsVerified();
+
+        return redirect(to: rtrim(config('app.frontend_url'), '/') . '/email-verified');
     }
 
     public function resendVerificationEmail(Request $request): JsonResponse

@@ -22,6 +22,8 @@ export function ResendVerifyLinkForm() {
     },
   });
 
+
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     axios.get(`${process.env.NEXT_PUBLIC_API_URL}/sanctum/csrf-cookie`, {withCredentials: true})
       .then(() => {
@@ -38,6 +40,10 @@ export function ResendVerifyLinkForm() {
           })
           .catch(() => {
           });
+      })
+      .catch(() => {
+        toast.error("Failed to get CSRF token");
+        form.reset();
       });
   }
 
