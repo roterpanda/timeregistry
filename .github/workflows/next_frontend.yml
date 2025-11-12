@@ -29,7 +29,7 @@ jobs:
       - name: Lint code
         run: |
           cd frontend-web
-          npm run lint
+          npx eslint
       - name: Test build
         run: |
           cd frontend-web
