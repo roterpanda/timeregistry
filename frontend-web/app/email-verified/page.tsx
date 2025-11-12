@@ -7,8 +7,7 @@ import {toast} from "sonner";
 
 
 export default function EmailVerifiedPage() {
-  const { login, isAuthenticated, loading } = useAuth();
-  const router = useRouter();
+  const { isAuthenticated, loading } = useAuth();
 
   useEffect(() => {
     if (loading) return;

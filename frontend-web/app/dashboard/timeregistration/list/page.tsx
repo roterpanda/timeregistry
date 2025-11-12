@@ -22,7 +22,6 @@ export default function TimeRegistrationTablePage() {
   const [adding, setAdding] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [deletingRow, setDeletingRow] = useState<number | null>(null);
-  const [error, setError] = useState<string>("");
 
   const form = useForm<TimeRegistrationFormData>({
     resolver: zodResolver(timeRegistrationSchema),
@@ -42,7 +41,7 @@ export default function TimeRegistrationTablePage() {
         setTimeRegistrations(res.data);
       })
       .catch(() => {
-        setError("Could not fetch list of projects.");
+
       })
       .finally(() => setLoading(false))
   }, []);
@@ -79,8 +78,7 @@ export default function TimeRegistrationTablePage() {
       form.reset();
     }
     catch (error) {
-      console.error("Error adding time registration:", error);
-      setError("Error adding time registration");
+      console.error("Error updating time registration:", error);
     }
     finally {
       setEditingRowId(null);
@@ -101,8 +99,6 @@ export default function TimeRegistrationTablePage() {
       await api.delete(`/api/v1/timeregistration/${id}`);
       setTimeRegistrations((prevState) => prevState.filter((timereg) => timereg.id !== id));
     } catch (error) {
-      console.error("Error deleting time registration:", error);
-      setError("Error deleting time registration");
     }
     finally {
       setDeletingRow(null);
@@ -124,8 +120,6 @@ export default function TimeRegistrationTablePage() {
       form.reset();
     }
     catch (error) {
-      console.error("Error adding time registration:", error);
-      setError("Error adding time registration");
     }
     finally {
       setAdding(false);

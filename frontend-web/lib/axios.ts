@@ -34,7 +34,7 @@ api.interceptors.response.use(
       case 401:
         onUnauthorized?.();
         break;
-      case 419:
+      case 419: {
         const config = error.config as AxiosRequestConfig & { _retry?: boolean } | undefined;
         if (!config?._retry) {
           if (config) {
@@ -47,6 +47,7 @@ api.interceptors.response.use(
         }
         onError?.("Session expired. Please refresh.");
         break;
+      }
       case 422:
         break;
       case 429:
