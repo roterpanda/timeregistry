@@ -46,7 +46,7 @@ jobs:
       run: php artisan migrate
       working-directory: backend
     - name: Start backend
-      run: php artisan serve --host=localhost --port=8000 &
+      run: php artisan serve --host=localhost --port=8000 --no-reload &
       working-directory: backend
     - name: Build frontend
       run: npm run build
