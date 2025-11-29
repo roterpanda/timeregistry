@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
@@ -75,7 +76,7 @@ class AuthController extends Controller
     {
         $user = User::findOrFail($id);
 
-        if (!hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
+        if (!hash_equals((string)$hash, sha1($user->getEmailForVerification()))) {
             return redirect(to: rtrim(config('app.frontend_url'), '/') . '/verify-email?status=invalid');
         }
 
@@ -103,6 +104,55 @@ class AuthController extends Controller
         return response()->json(['message' => 'Verification email sent if user exists.']);
 
     }
+
+    public function changePassword(Request $request): JsonResponse
+    {
+        $validator = Validator::make(['password' => $request->password], [
+            'password' => 'required|min:10',
+        ]);
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+        $user = Auth::guard('web')->user();
+        if (!$user) {
+            return response()->json('User not recognized or unauthorized', 403);
+        }
+        $user->password = bcrypt($request->password);
+        $user->save();
+        return response()->json(['message' => 'Password changed successfully.']);
+    }
+
+
+    public function sendPasswordResetLink(Request $request): JsonResponse
+    {
+        $request->validate(['email' => 'required|email']);
+        $status = Password::sendResetLink($request->only('email'));
+
+        return $status === Password::RESET_LINK_SENT ?
+            response()->json(['message' => __($status)])
+            : response()->json(['error' => __($status)], 422);
+    }
+
+    public function resetPassword(Request $request): JsonResponse
+    {
+        $request->validate([
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|min:10|confirmed:password_confirmation',
+        ]);
+
+        $response = Password::reset($request->only('email', 'password', 'token'), function ($user, $password) {
+            $user->forceFill([
+                'password' => bcrypt($password),
+            ])->save();
+        });
+
+        if ($response == Password::PASSWORD_RESET) {
+            return response()->json(['message' => 'Password reset successfully.']);
+        }
+
+        return response()->json(['message' => 'Invalid token or email.'], 422);
+   }
 
     public function logout(Request $request): JsonResponse
     {

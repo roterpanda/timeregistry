@@ -1,4 +1,5 @@
 import {LoginForm} from "@/components/forms/login-form";
+import Link from "next/link";
 
 
 export default function Login() {
@@ -8,6 +9,9 @@ export default function Login() {
                 Log in.
             </h1>
             <LoginForm />
+            <Link href="/forgot-password" className="text-sm text-secondary-foreground">
+              Forgot your password?
+            </Link>
         </div>
 
 

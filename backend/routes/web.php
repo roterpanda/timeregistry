@@ -15,3 +15,9 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->middleware(['signed'])->name('verification.verify');
 
 Route::post('/email/resend', [AuthController::class, 'resendVerificationEmail'])->middleware(['throttle:6,1'])->name('verification.send');
+
+Route::post('/password/change', [AuthController::class, 'changePassword'])->middleware(['throttle:6,1'])->name('password.change');
+
+Route::post('/password/email', [AuthController::class, 'sendPasswordResetLink'])->middleware(['throttle:6,1'])->name('password.email');
+
+Route::post('/password/reset', [AuthController::class, 'resetPassword'])->middleware(['throttle:6,1'])->name('password.reset');
