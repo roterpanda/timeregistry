@@ -76,6 +76,44 @@ class AuthControllerTest extends TestCase
     }
 
     /**
+     * Test happy flow for login
+     */
+    public function test_login_happy_flow(): void
+    {
+        // Register user
+        $response = $this->registerTestUser('User', 'test@test.com', 'password123');
+        $response->assertStatus(201);
+
+        // Mock email verification
+        $user = User::where('email', '=', 'test@test.com')->first();
+        $user->markEmailAsVerified();
+
+        $response = $this->postJson('login', [
+            'email' => 'test@test.com',
+            'password' => 'password123'
+        ]);
+
+        $response->assertStatus(200);
+    }
+
+    /**
+     * Test login for email not verified
+     */
+    public function test_login_email_not_verified(): void
+    {
+        $this->registerTestUser('User', 'test@test.com', 'password123');
+        $response = $this->postJson('login', [
+            'email' => 'test@test.com',
+            'password' => 'password123'
+        ]);
+        $response->assertStatus(403);
+        $response->assertJson([
+           'message' => 'Please verify your email address.',
+        ]);
+    }
+
+
+    /**
      * @return void
      */
     public function registerTestUser(string $username, string $email, string $password): TestResponse
