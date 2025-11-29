@@ -26,7 +26,7 @@ export default function MenuBar() {
       {isAuthenticated ? (
         <div className="flex items-center gap-4">
           <Button variant="outline" asChild={true}>
-            <Link href={`/dashboard/profile`}>
+            <Link href="/dashboard/profile">
               <UserIcon />
               <span className="text-foreground">Profile</span>
             </Link>
