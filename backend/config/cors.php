@@ -5,7 +5,7 @@
 
 return [
 
-    'paths' => ['api/*', 'api/v1/*', 'sanctum/csrf-cookie', 'login', 'logout', 'register', 'email/verify/*', 'email/resend'],
+    'paths' => ['api/*', 'api/v1/*', 'sanctum/csrf-cookie', 'login', 'logout', 'register', 'email/verify/*', 'email/resend', 'password/change', 'password/email', 'password/reset'],
 
     'allowed_methods' => ['*'],
 
