@@ -21,6 +21,6 @@ Route::prefix('v1')->group(function () {
 
 });
 
-
+Route::get('export_timereg.csv', [TimeRegistrationController::class, 'streamExport'])->middleware(['auth:sanctum', 'verified']);
 
 

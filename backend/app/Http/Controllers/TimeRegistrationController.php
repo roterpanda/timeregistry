@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
+use App\Models\TimeRegistration;
 use App\Services\TimeRegistrationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -109,6 +110,44 @@ class TimeRegistrationController extends Controller
             'count' => $count,
             'totalTime' => $totalTime,
         ]);
+    }
+
+    public function streamExport(Request $request)
+    {
+        $user = Auth::guard('web')->user();
+        if (!$user) {
+            return response()->json('Unauthenticated', 401);
+        }
+
+        $filename = 'export-' . now()->format('Ymd-His') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function () use ($user) {
+            $handle = fopen('php://output', 'w');
+            fputcsv($handle, ['Date', 'Project', 'Duration (h)', 'Kilometers', 'Notes']);
+            TimeRegistration::query()
+                ->where('user_id', $user->id)
+                ->orderBy('project_id')
+                ->orderBy('date', 'desc')
+                ->chunk(100, function ($registrations) use ($handle) {
+                    foreach ($registrations as $registration) {
+                        fputcsv($handle, [
+                            $registration->date,
+                            $registration->project->name,
+                            $registration->duration,
+                            $registration->kilometers,
+                            $registration->notes
+                        ]);
+                    }
+                });
+            fclose($handle);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
 
