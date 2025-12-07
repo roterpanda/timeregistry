@@ -1,7 +1,7 @@
 "use client";
 
 import {Button} from "@/components/ui/button";
-import {PlusCircleIcon } from "lucide-react";
+import {DownloadIcon, PlusCircleIcon} from "lucide-react";
 import {
   columns,
   TimeRegistration,
@@ -156,6 +156,30 @@ export default function TimeRegistrationTablePage() {
         }}>
             <PlusCircleIcon/>
             New Time Registration
+        </Button>
+        <Button variant="secondary"
+        onClick={async () => {
+          try {
+            const csvResponse = await api.get(
+              `${process.env.NEXT_PUBLIC_API_URL}/api/export_timereg.csv`,
+              {
+                withCredentials: true,
+                responseType: "blob"
+              });
+            const blob = new Blob([csvResponse.data], {type: "text/csv;charset=utf-8"});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "timeregistrations.csv";
+            a.click();
+            URL.revokeObjectURL(url);
+          }
+          catch (error) {
+
+          }
+        }}>
+          <DownloadIcon />
+          Export to CSV
         </Button>
       </div>
 
