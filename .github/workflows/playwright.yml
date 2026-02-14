@@ -33,6 +33,8 @@ jobs:
       working-directory: backend
     - name: Copy .env
       run: cd backend && php -r "file_exists('.env') || copy('.env.example', '.env');"
+    - name: Use array cache for E2E to avoid throttle state persisting across tests
+      run: sed -i 's/CACHE_STORE=database/CACHE_STORE=array/' backend/.env
     - name: Generate key
       run: |
         cd backend
