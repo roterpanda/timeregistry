@@ -72,12 +72,13 @@ class DeleteAccountTest extends TestCase
     public function test_delete_account_removes_related_projects(): void
     {
         $user = User::factory()->create();
-        $project = Project::create([
+        $project = new Project([
             'name' => 'Test Project',
             'description' => 'A test project',
             'is_public' => false,
-            'owner_id' => $user->id,
         ]);
+        $project->owner_id = $user->id;
+        $project->save();
 
         $this->actingAs($user, 'web');
 
@@ -93,18 +94,21 @@ class DeleteAccountTest extends TestCase
     public function test_delete_account_removes_related_time_registrations(): void
     {
         $user = User::factory()->create();
-        $project = Project::create([
+        $project = new Project([
             'name' => 'Test Project',
             'description' => 'A test project',
             'is_public' => true,
-            'owner_id' => $user->id,
         ]);
-        TimeRegistration::create([
-            'user_id' => $user->id,
+        $project->owner_id = $user->id;
+        $project->save();
+
+        $timeReg = new TimeRegistration([
             'project_id' => $project->id,
             'date' => '2024-01-01',
             'duration' => 8,
         ]);
+        $timeReg->user_id = $user->id;
+        $timeReg->save();
 
         $this->actingAs($user, 'web');
 
@@ -121,12 +125,13 @@ class DeleteAccountTest extends TestCase
     {
         $user1 = User::factory()->create();
         $user2 = User::factory()->create();
-        $project = Project::create([
+        $project = new Project([
             'name' => 'User2 Project',
             'description' => 'Belongs to user2',
             'is_public' => false,
-            'owner_id' => $user2->id,
         ]);
+        $project->owner_id = $user2->id;
+        $project->save();
 
         $this->actingAs($user1, 'web');
 

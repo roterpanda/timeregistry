@@ -45,7 +45,7 @@ class TimeRegistrationController extends Controller
             return response()->json('Unauthorized', 403);
         }
 
-        $timeRegistration = $user->timeRegistrations()->create($request->all());
+        $timeRegistration = $user->timeRegistrations()->create($request->only(['project_id', 'duration', 'kilometers', 'notes', 'date']));
         $timeRegistration->load('project:id,name');
         return response()->json($timeRegistration, 201);
 
@@ -78,7 +78,7 @@ class TimeRegistrationController extends Controller
             return response()->json('Unauthorized', 403);
         }
 
-        $timeRegistration->update($request->all());
+        $timeRegistration->update($request->only(['project_id', 'duration', 'kilometers', 'notes', 'date']));
         $timeRegistration->load('project:id,name');
         return response()->json($timeRegistration);
 

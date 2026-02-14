@@ -28,21 +28,22 @@ class TimeRegistrationControllerTest extends TestCase
     {
         parent::setUp();
         $this->user1 = User::factory()->create();
-        $this->privateProject = Project::create([
+        $this->privateProject = new Project([
             'name' => 'Test Project',
             'description' => 'This is a test project',
             'is_public' => false,
-            'owner_id' => $this->user1->id,]
-        );
+        ]);
+        $this->privateProject->owner_id = $this->user1->id;
         $this->privateProject->save();
 
         $this->user2 = User::factory()->create();
-        $this->publicProject = Project::create([
-                'name' => 'Test Project Public',
-                'description' => 'This is a test project for user 2',
-                'is_public' => true,
-                'owner_id' => $this->user2->id,]
-        );
+        $this->publicProject = new Project([
+            'name' => 'Test Project Public',
+            'description' => 'This is a test project for user 2',
+            'is_public' => true,
+        ]);
+        $this->publicProject->owner_id = $this->user2->id;
+        $this->publicProject->save();
 
     }
 

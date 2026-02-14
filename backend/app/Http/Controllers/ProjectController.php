@@ -54,13 +54,9 @@ class ProjectController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        $project = Project::create([
-            'name' => $request->name,
-            'description' => $request->description,
-            'owner_id' => Auth::guard('web')->user()->id,
-            'project_code' => $request->project_code,
-            'is_public' => $request->is_public,
-            ]);
+        $project = new Project($request->only(['name', 'description', 'project_code', 'is_public']));
+        $project->owner_id = Auth::guard('web')->user()->id;
+        $project->save();
 
         return response()->json($project, 201);
     }
@@ -113,7 +109,7 @@ class ProjectController extends Controller
         if ($project->owner_id !== $owner->id) {
             return response()->json('Unauthorized', 403);
         }
-        $project->update($request->all());
+        $project->update($request->only(['name', 'description', 'project_code', 'is_public']));
         return response()->json('Project updated successfully');
     }
 

@@ -18,7 +18,6 @@ class TimeRegistration extends Model
         'project_id',
         'notes',
         'date',
-        'user_id',
         'kilometers'
     ];
 
