@@ -13,6 +13,9 @@ import api from "@/lib/axios";
 import {useEffect, useState} from "react";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {useForm} from "react-hook-form";
+import {useIsMobile} from "@/hooks/use-mobile";
+import {TimeregMobileList} from "@/components/data-components/timereg-mobile-list";
+import {TimeregMobileFormSheet} from "@/components/data-components/timereg-mobile-form-sheet";
 
 
 
@@ -22,6 +25,7 @@ export default function TimeRegistrationTablePage() {
   const [adding, setAdding] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [deletingRow, setDeletingRow] = useState<number | null>(null);
+  const isMobile = useIsMobile();
 
   const form = useForm<TimeRegistrationFormData>({
     resolver: zodResolver(timeRegistrationSchema),
@@ -132,28 +136,60 @@ export default function TimeRegistrationTablePage() {
     setTimeRegistrations((prevState) => prevState.filter((timereg) => timereg.id !== 0));
   }
 
+  const handleMobileAdd = () => {
+    if (adding) return;
+    cancelEdit();
+    setAdding(true);
+    form.reset({
+      date: "",
+      duration: 0,
+      project: 0,
+      kilometers: 0,
+      notes: "",
+    });
+  }
+
+  const handleDesktopAdd = () => {
+    if (adding) return;
+    cancelEdit();
+    setAdding(true);
+    form.reset({
+      date: "",
+      duration: 0,
+      project: 0,
+      kilometers: 0,
+      notes: "",
+    });
+    setTimeRegistrations((prevState) => [{id: 0, date: new Date(), duration: 0, project: {id: 0, name: ""}, notes: "", kilometers: 0}, ...prevState]);
+  }
+
+  const handleMobileCancel = () => {
+    if (adding) {
+      setAdding(false);
+      form.reset();
+    } else {
+      cancelEdit();
+    }
+  }
+
+  const handleMobileSubmit = form.handleSubmit(async (data) => {
+    if (adding) {
+      await submitAdding(data);
+    } else if (editingRowId !== null) {
+      await updateTimeRegistration(editingRowId, data);
+    }
+  });
+
+  const mobileSheetOpen = adding || editingRowId !== null;
+
   return (
-    <div className="w-full mx-auto p-6 space-y-6">
-      <h1 className="text-3xl font-bold">
+    <div className="w-full mx-auto p-4 md:p-6 space-y-6">
+      <h1 className="text-2xl md:text-3xl font-bold">
         All Time Registrations
       </h1>
 
-      <div className="flex space-x-4">
-        <Button onClick={() => {
-          if (adding) return;
-          cancelEdit();
-          setAdding(true);
-
-          form.reset({
-            date: "",
-            duration: 0,
-            project: 0,
-            kilometers: 0,
-            notes: "",
-          });
-
-          setTimeRegistrations((prevState) => [{id: 0, date: new Date(), duration: 0, project: {id: 0, name: ""}, notes: "", kilometers: 0}, ...prevState]);
-        }}>
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+        <Button onClick={isMobile ? handleMobileAdd : handleDesktopAdd}>
             <PlusCircleIcon/>
             New Time Registration
         </Button>
@@ -184,27 +220,50 @@ export default function TimeRegistrationTablePage() {
       </div>
 
       {loading && <p>Loading...</p>}
-      <div className="mt-8">
-        <DataTable
-          columns={columns}
-          data={timeRegistrations}
-          metaData={{
-            editingRowId,
-            startEdit,
-            cancelEdit,
-            adding,
-            deletingRow,
-            cancelAdding,
-            submitAdding: form.handleSubmit(submitAdding),
-            form,
-            startDeleting,
-            cancelDeleting,
-            deleteTimeRegistration,
-            updateTimeRegistration: form.handleSubmit(async (data) => {
-              if (editingRowId === null) return;
-              await updateTimeRegistration(editingRowId, data)
-            })}}/>
-      </div>
+
+      {isMobile ? (
+        <>
+          <TimeregMobileList
+            data={timeRegistrations}
+            adding={adding}
+            editingRowId={editingRowId}
+            deletingRow={deletingRow}
+            onEdit={startEdit}
+            onStartDeleting={startDeleting}
+            onConfirmDelete={deleteTimeRegistration}
+            onCancelDeleting={cancelDeleting}
+          />
+          <TimeregMobileFormSheet
+            open={mobileSheetOpen}
+            isEditing={editingRowId !== null}
+            form={form}
+            onSubmit={handleMobileSubmit}
+            onCancel={handleMobileCancel}
+          />
+        </>
+      ) : (
+        <div className="mt-8">
+          <DataTable
+            columns={columns}
+            data={timeRegistrations}
+            metaData={{
+              editingRowId,
+              startEdit,
+              cancelEdit,
+              adding,
+              deletingRow,
+              cancelAdding,
+              submitAdding: form.handleSubmit(submitAdding),
+              form,
+              startDeleting,
+              cancelDeleting,
+              deleteTimeRegistration,
+              updateTimeRegistration: form.handleSubmit(async (data) => {
+                if (editingRowId === null) return;
+                await updateTimeRegistration(editingRowId, data)
+              })}}/>
+        </div>
+      )}
 
     </div>
   )
