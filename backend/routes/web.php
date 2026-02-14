@@ -7,11 +7,11 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\Route;
 
 
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->middleware(['throttle:10,1']);
 
 Route::post('/logout', [AuthController::class, 'logout']);
 
-Route::post('/register', [AuthController::class, 'register']);
+Route::post('/register', [AuthController::class, 'register'])->middleware(['throttle:6,1']);
 
 Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->middleware(['signed'])->name('verification.verify');
 
@@ -23,4 +23,4 @@ Route::post('/password/email', [AuthController::class, 'sendPasswordResetLink'])
 
 Route::post('/password/reset', [AuthController::class, 'resetPassword'])->middleware(['throttle:6,1'])->name('password.reset');
 
-Route::delete('/account', [AuthController::class, 'deleteAccount'])->middleware(['auth:sanctum']);
+Route::delete('/account', [AuthController::class, 'deleteAccount'])->middleware(['auth:sanctum', 'throttle:6,1']);

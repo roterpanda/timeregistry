@@ -108,7 +108,8 @@ class AuthController extends Controller
 
     public function changePassword(Request $request): JsonResponse
     {
-        $validator = Validator::make(['password' => $request->password], [
+        $validator = Validator::make($request->all(), [
+            'current_password' => 'required',
             'password' => 'required|min:10',
         ]);
         if ($validator->fails()) {
@@ -117,6 +118,9 @@ class AuthController extends Controller
         $user = Auth::guard('web')->user();
         if (!$user) {
             return response()->json('User not recognized or unauthorized', 403);
+        }
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json(['message' => 'Current password is incorrect.'], 403);
         }
         $user->password = bcrypt($request->password);
         $user->save();
