@@ -1,4 +1,6 @@
 import {ResetPasswordAuthorizedForm} from "@/components/forms/reset-password-authorized";
+import {DeleteAccountForm} from "@/components/forms/delete-account-form";
+import {Separator} from "@/components/ui/separator";
 
 
 export default function ProfilePage() {
@@ -10,6 +12,16 @@ export default function ProfilePage() {
       <section className="flex flex-col space-y-4">
         <h2 className="text-xl font-bold">Change your password</h2>
         <ResetPasswordAuthorizedForm />
+      </section>
+
+      <Separator />
+
+      <section className="flex flex-col space-y-4">
+        <h2 className="text-xl font-bold">Delete account</h2>
+        <p className="text-muted-foreground text-sm">
+          Once you delete your account, there is no going back. All your projects and time registrations will be permanently removed.
+        </p>
+        <DeleteAccountForm />
       </section>
 
     </div>

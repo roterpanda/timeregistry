@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 
@@ -153,6 +154,34 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Invalid token or email.'], 422);
    }
+
+    public function deleteAccount(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'password' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $user = Auth::guard('web')->user();
+
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json(['message' => 'Incorrect password.'], 403);
+        }
+
+        $user->timeRegistrations()->delete();
+        $user->projects()->delete();
+
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        $user->delete();
+
+        return response()->json(['message' => 'Account deleted successfully.']);
+    }
 
     public function logout(Request $request): JsonResponse
     {

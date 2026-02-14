@@ -22,3 +22,5 @@ Route::post('/password/change', [AuthController::class, 'changePassword'])->midd
 Route::post('/password/email', [AuthController::class, 'sendPasswordResetLink'])->middleware(['throttle:6,1'])->name('password.email');
 
 Route::post('/password/reset', [AuthController::class, 'resetPassword'])->middleware(['throttle:6,1'])->name('password.reset');
+
+Route::delete('/account', [AuthController::class, 'deleteAccount'])->middleware(['auth:sanctum']);
